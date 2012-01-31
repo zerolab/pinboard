@@ -1,0 +1,7 @@
+name = Pinboard
+description = Simple bookmarking
+core = 6.x
+
+;package =
+;dependencies[] =
+;dependencies[] =
