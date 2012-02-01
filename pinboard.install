@@ -10,7 +10,7 @@ function pinboard_schema() {
   $schema['pinboard'] = array(
     'description' => 'Bookmarks table',
     'fields' => array(
-      'bid' = array(
+      'bid' => array(
         'description' => 'Bookmark id',
         'type'        => 'serial',
         'unsigned'    => TRUE,
@@ -77,8 +77,8 @@ function pinboard_schema() {
     'primary key' => array('uid', 'bid')
   );
 
-  $schema['cache_pinboard_lists'] = drupal_get_schema_unprocessed('system', 'cache');
-  $schema['cache_pinboard_lists']['descriptions'] = 'Cache table for the Pinboard module to store user bookmark lists';
+  $schema['cache_pinboard_list'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_pinboard_list']['descriptions'] = 'Cache table for the Pinboard module to store user bookmark lists';
 
   return $schema;
 }

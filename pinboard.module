@@ -3,3 +3,49 @@
  * @file
  *    pinboard.module - a simple bookmarking utility and UI
  */
+
+/**
+ *  Implementation of hook_perm()
+ */
+function pinboard_perm() {
+  return array(
+    'access bookmarks', // public bookmarks
+    'view own private bookmarks',
+    'create bookmarks',
+    'delete own bookmarks',
+    'delete any bookmarks'
+  );
+}
+
+
+/**
+ *  Implementation of hook_menu()
+ */
+function pinboard_menu() {
+  $items = array();
+
+  $items['bookmark/add'] = array(
+  );
+
+  $items['bookmark/%/delete'] = array(
+    'title' => 'Delete bookmark',
+    'page callback' => 'pinboard_delete',
+    'page arguments' => array(1),
+    'access arguments' => array('delete own bookmarks', 'delete all bookmarks'),
+    'type' => MENU_CALLBACK
+  );
+
+  // User-specific data
+  $items['user/%user/bookmarks'] = array(
+    'title' => t('Bookmarks'),
+    'page callback' => 'pinboard_user_page',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access bookmarks'),
+    'file' => 'pinboard.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 5
+  );
+
+  return $items;
+}
