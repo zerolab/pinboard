@@ -4,3 +4,93 @@
  *    pinboard.install - (un)install tasks
  *
  */
+
+function pinboard_schema() {
+
+  $schema['pinboard'] = array(
+    'description' => 'Bookmarks table',
+    'fields' => array(
+      'bid' = array(
+        'description' => 'Bookmark id',
+        'type'        => 'serial',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'url' => array(
+        'description' => 'The bookmarked url',
+        'type'        => 'varchar',
+        'length'      => '512',
+        'not null'    => TRUE,
+        'default'     => ''
+      ),
+      'title' => array(
+        'description' => 'Bookmark title, always treated as non-markup text',
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => ''
+      ),
+      'description' => array(
+        'description' => 'Bookmark description',
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => ''
+      )
+    ),
+    'indexes' => array(
+      'title' => array('title')
+    ),
+    'unique_keys' => array(
+      'bid' => array('bid')
+    ),
+    'primary key' => array('bid')
+  );
+
+  $schema['pinboard_user'] = array(
+    'description' => 'Stores the relationship between users and bookmarks',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'bid' => array(
+        'description' => 'The saved bookmark {pinboard}.bid assigned to the user',
+        'type'        => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'timestamp' => array(
+        'description' => 'The save timestamp',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      )
+    ),
+    'indexes' => array(
+      'uid' => array('uid')
+    ),
+    'primary key' => array('uid', 'bid')
+  );
+
+  $schema['cache_pinboard_lists'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_pinboard_lists']['descriptions'] = 'Cache table for the Pinboard module to store user bookmark lists';
+
+  return $schema;
+}
+
+
+/**
+ *  Implementation of hook_install()
+ */
+function pinboard_install() {
+
+}
+
+function pinboard_uninstall() {
+
+}
