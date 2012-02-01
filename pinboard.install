@@ -88,9 +88,12 @@ function pinboard_schema() {
  *  Implementation of hook_install()
  */
 function pinboard_install() {
-
+  drupal_install_schema('pinboard');
 }
 
+/**
+ * Implementation of hook_uninstall()
+ */
 function pinboard_uninstall() {
-
+  drupal_uninstall_schema('pinboard');
 }
