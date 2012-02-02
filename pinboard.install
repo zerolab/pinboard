@@ -16,6 +16,13 @@ function pinboard_schema() {
         'unsigned'    => TRUE,
         'not null'    => TRUE
       ),
+      'uid' => array(
+        'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
       'url' => array(
         'description' => 'The bookmarked url',
         'type'        => 'varchar',
@@ -36,35 +43,8 @@ function pinboard_schema() {
         'length'      => 255,
         'not null'    => TRUE,
         'default'     => ''
-      )
-    ),
-    'indexes' => array(
-      'title' => array('title')
-    ),
-    'unique_keys' => array(
-      'bid' => array('bid')
-    ),
-    'primary key' => array('bid')
-  );
-
-  $schema['pinboard_user'] = array(
-    'description' => 'Stores the relationship between users and bookmarks',
-    'fields' => array(
-      'uid' => array(
-        'description' => 'The {user}.uid saving the bookmark',
-        'type'        => 'int',
-        'unsigned'    => 'int',
-        'not null'    => TRUE,
-        'default'     => 0
       ),
-      'bid' => array(
-        'description' => 'The saved bookmark {pinboard}.bid assigned to the user',
-        'type'        => 'int',
-        'unsigned'    => TRUE,
-        'not null'    => TRUE,
-        'default'     => 0
-      ),
-      'timestamp' => array(
+      'created' => array(
         'description' => 'The save timestamp',
         'type'        => 'int',
         'not null'    => TRUE,
@@ -72,13 +52,17 @@ function pinboard_schema() {
       )
     ),
     'indexes' => array(
-      'uid' => array('uid')
+      'created' => array('created'),
+      'uid' => array('uid'),
     ),
-    'primary key' => array('uid', 'bid')
+    'unique_keys' => array(
+      'bid' => array('bid')
+    ),
+    'primary key' => array('bid', 'uid')
   );
 
-  $schema['cache_pinboard_list'] = drupal_get_schema_unprocessed('system', 'cache');
-  $schema['cache_pinboard_list']['descriptions'] = 'Cache table for the Pinboard module to store user bookmark lists';
+  $schema['cache_pinboard'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_pinboard']['description'] = 'Cache table for the Pinboard module to store user bookmark lists / data';
 
   return $schema;
 }
