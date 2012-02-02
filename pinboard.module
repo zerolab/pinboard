@@ -25,6 +25,11 @@ function pinboard_menu() {
   $items = array();
 
   $items['bookmark/add'] = array(
+    'title' => 'Add bookmark',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pinboard_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('create bookmarks')
   );
 
   $items['bookmark/%/delete'] = array(
@@ -48,4 +53,81 @@ function pinboard_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implementation of hook_form()
+ * This is the bookmark creation form
+ */
+function pinboard_form() {
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => 'URL',
+    '#required' => TRUE
+  );
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Title',
+  );
+
+  $form['description'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Short description',
+    '#description' => 'Enter a short description or summary for the bookmarked URL. Up to 250 characters.'
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Bookmark')
+  );
+
+  return $form;
+}
+
+/**
+ *  Implementation of hook_validate()
+ *
+ *  @todo use idn_to_ascii() for PHP 5.3
+ */
+function pinboard_form_validate($form, &$form_state) {
+  dpm($form_state);
+  $url = $form_state['values']['url'];
+
+  if (function_exists('idn_to_ascii')) {
+    $url = idn_to_ascii($url);
+  }
+  if (!valid_url($url, TRUE) ) {
+    form_set_error('url', 'Please enter a valid URL');
+  }
+}
+
+/**
+ *  Handles the bookmark creation
+ *
+ * @todo get title/description via drupal_http_request to $url if empty
+ */
+function pinboard_form_submit($form, &$form_state) {
+  global $user;
+
+  $url = check_url($form_state['values']['url']);
+  $title = check_plain($form_state['values']['title']);
+  $description = check_plain($form_state['values']['description']);
+
+  if ($bid = db_result(db_query("SELECT bid FROM {pinboard} WHERE url = '%s'", $url))) {
+    db_query("INSERT INTO {pinboard_user} VALUES (%d, %d, '%s')", $user->uid, $bid, time());
+  }
+  else {
+    $bookmark = new StdClass;
+    $bookmark->url = $url;
+    $bookmark->title = $title;
+    $bookmark->description = $description;
+
+    if (drupal_write_record('pinboard', $bookmark)) {
+      db_query("INSERT INTO {pinboard_user} VALUES (%d, %d, '%s')", $user->uid, $bookmark->bid, time());
+    }
+
+  }
+
+  drupal_set_message('Bookmark saved');
 }
