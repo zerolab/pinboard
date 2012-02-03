@@ -1,0 +1,12 @@
+.pinboard-link {
+  background:url(bookmark-off.png) no-repeat;
+  padding-left:16px;
+}
+
+.bookmarked {
+  background-image:url(bookmark-on.png);
+}
+
+.pinboard-waiting {
+  background-image:url(loading.gif);
+}

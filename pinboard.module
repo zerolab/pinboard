@@ -167,6 +167,8 @@ function pinboard_actions_page($action, $content_id = NULL) {
   // Oh, Devel, we love you but not here
   $GLOBALS['devel_shutdown'] = FALSE;
 
+  $js = $_REQUEST['js'];
+
   if ($action == 'add') {
     $node = node_load($content_id);
 
@@ -175,10 +177,38 @@ function pinboard_actions_page($action, $content_id = NULL) {
     $bookmark->title = $node->title;
     $bookmark->description = check_plain($node->teaser);
 
-    pinboard_save($bookmark);
+    if ($bid = pinboard_save($bookmark)) {
+      $message = t('Bookmark successfully added');
+      $link = 'bookmark/delete/'. $bid;
+      $text = 'Remove bookmark';
+      $status = 'bookmarked';
+    }
+    else {
+      $error = t('Could not add bookmark.');
+    }
+
   }
   else if ($action == 'delete') {
     pinboard_delete($content_id);
+    $message = t('Bookmark successfully deleted');
+    $text = 'Bookmark';
+    $status = 'unbookmarked';
+
+    if (is_numeric($_REQUEST['nid']) ) {
+      $link = url('bookmark/add/'. $_REQUEST['nid'], array('absolute' => TRUE));
+    }
+  }
+
+  if ($js) {
+    drupal_set_header('Content-Type: text/javascript; charset=utf-8');
+    print drupal_to_js(array(
+      'status' => $status,
+      'link' => $link,
+      'text' => $text,
+    ));
+  }
+  else {
+    drupal_set_message($message);
     drupal_goto();
   }
 }
@@ -225,4 +255,28 @@ function pinboard_delete($bid) {
   }
 
   return db_query($query, $bid);
+}
+
+/**
+ * Utility function for outputting a bookmark link for nodes
+ * @param $nid
+ *    Node id to generate bookmark link for
+ * @return
+ *    An html link
+ *
+ * @todo check if node/link already bookmarked by user
+ */
+function pinboard_create_link($nid) {
+  $node = node_load($nid);
+
+  if ($node) {
+    return l('Bookmark', 'bookmark/add/'. $node->nid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link', 'data-id' => $node->nid)));
+  }
+
+  return;
+}
+
+function pinboard_init() {
+  drupal_add_js(drupal_get_path('module', 'pinboard'). '/pinboard.js');
+  drupal_add_css(drupal_get_path('module', 'pinboard'). '/pinboard.css');
 }
