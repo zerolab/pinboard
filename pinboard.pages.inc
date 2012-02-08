@@ -6,13 +6,13 @@
  */
 
 function pinboard_user_page($account) {
-  //dpm($account);
 
-  $result = db_query("SELECT * FROM {pinboard} WHERE uid = %d ORDER BY created DESC", $account->uid);
+  $bookmarks = pinboard_load_bookmarks($account->uid);
 
-  while ($bookmark = db_fetch_object($result)) {
-    $bookmarks[] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE));
+  foreach($bookmarks as $bookmark) {
+    $list[] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE)) .' '.
+      l('&times;', 'bookmark/delete/'. $bookmark->bid, array('absolute' => TRUE, 'html' => TRUE, 'attributes' => array('class' => 'pinboard-link')));
   }
 
-  return theme_item_list($bookmarks, 'Bookmarks');
+  return theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list'));
 }
