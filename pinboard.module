@@ -5,6 +5,19 @@
  */
 
 /**
+ *  Load the common includes
+ */
+function pinboard_load_common_includes() {
+  static $pinboard_module_path;
+  if (!$pinboard_module_path) {
+    $pinboard_module_path = drupal_get_path('module', 'pinboard');
+    require_once($pinboard_module_path .'/pinboard.common.inc');
+  }
+}
+
+pinboard_load_common_includes();
+
+/**
  *  Implementation of hook_perm()
  */
 function pinboard_perm() {

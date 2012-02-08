@@ -12,21 +12,16 @@
  * @return
  *    An array with bookmark details
  */
-function pinboard_user_bookmarks($uid = 0) {
+function pinboard_load_bookmarks($uid = 0) {
 
   if (!$uid) {
     return;
   }
 
-  $result = db_query("SELECT bid, url, title, description FROM {pinboard} WHERE uid = %d", $uid);
+  $result = db_query("SELECT * FROM {pinboard} WHERE uid = %d", $uid);
 
-  while ($r = db_fetch_object($result)) {
-    $bookmarks[] = array(
-      'id' => $r->bid,
-      'url' => $r->url,
-      'title' => $r->title,
-      'description' => $r->description
-    );
+  while ($bookmark = db_fetch_object($result)) {
+    $bookmarks[] = $bookmark;
   }
 
   return $bookmarks;
