@@ -5,8 +5,18 @@
  *    pinboard.pages.inc - Pinboard page(s)
  */
 
+/**
+ * Callback function for the user bookmarks page
+ *
+ * @param $account
+ *    The user object
+ * @return
+ *  An html item list with the bookmarks
+ *
+ * @todo show link to bookmark/add
+ * @todo show descriptions
+ */
 function pinboard_user_page($account) {
-
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
   foreach($bookmarks as $bookmark) {
@@ -19,6 +29,7 @@ function pinboard_user_page($account) {
 
 /**
  * Callback function for bookmark actions (add/delete)
+ *
  * @param $action
  *    The action to perform
  * @param $content_id

@@ -6,6 +6,7 @@
 
 /**
  * Save/update a bookmark
+ *
  * @param $bookmark
  *    An object with the bookmark url, title and description
  * @return
@@ -33,7 +34,8 @@ function pinboard_save($bookmark) {
 }
 
 /**
- *  Removes a bookmark.
+ * Removes a bookmark.
+ *
  * @param $bid
  *    The bookmark id
  */
@@ -50,6 +52,7 @@ function pinboard_delete($bid) {
 
 /**
  * Utility function for outputting a bookmark link for nodes
+ *
  * @param $nid
  *    Node id to generate bookmark link for
  * @return
