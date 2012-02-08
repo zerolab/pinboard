@@ -17,7 +17,19 @@
  * @todo show descriptions
  */
 function pinboard_user_page($account) {
+  global $user;
+  $account_data = unserialize($account->data);
+
+  if ($account_data['pinboard_visibility'] == 'private' && $account->uid !== $user->uid) {
+    return 'There is nothing to see here. Carry on.';
+  }
+
   $bookmarks = pinboard_load_bookmarks($account->uid);
+
+
+  if (!$bookmarks || empty($bookmarks)) {
+    return 'No bookmarks yet.';
+  }
 
   foreach($bookmarks as $bookmark) {
     $list[] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE)) .' '.

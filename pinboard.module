@@ -22,8 +22,7 @@ pinboard_load_common_includes();
  */
 function pinboard_perm() {
   return array(
-    'access bookmarks', // public bookmarks
-    'view own private bookmarks',
+    'view public bookmarks', // public bookmarks
     'create bookmarks',
     'delete own bookmarks',
     'delete any bookmarks'
@@ -68,8 +67,8 @@ function pinboard_menu() {
     'title' => t('Bookmarks'),
     'page callback' => 'pinboard_user_page',
     'page arguments' => array(1),
-    'access callback' => 'user_access',
-    'access arguments' => array('access bookmarks'),
+    'access callback' => 'pinboard_access',
+    'access arguments' => array('view public bookmarks'),
     'file' => 'pinboard.pages.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 5
