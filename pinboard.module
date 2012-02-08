@@ -205,10 +205,11 @@ function pinboard_actions_page($action, $content_id = NULL) {
     pinboard_delete($content_id);
     $message = t('Bookmark successfully deleted');
     $text = 'Bookmark';
-    $status = 'unbookmarked';
+    $status = 'remove';
 
     if (is_numeric($_REQUEST['nid']) ) {
       $link = url('bookmark/add/'. $_REQUEST['nid'], array('absolute' => TRUE));
+      $status = 'unbookmarked';
     }
   }
 

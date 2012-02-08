@@ -3,6 +3,11 @@
   padding-left:16px;
 }
 
+.pinboard-list .pinboard-link {
+  background:none;
+  padding-left:0;
+}
+
 .bookmarked {
   background-image:url(bookmark-on.png);
 }

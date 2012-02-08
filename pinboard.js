@@ -13,21 +13,28 @@ Drupal.behaviors.pinboard = function(context) {
       }
 
       element.addClass('pinboard-waiting');
+      var data = {js: true};
+      if (element.attr('data-id') !== 'undefined') {
+        data.nid = element.attr('data-id');
+      }
 
       $.ajax({
         type: 'POST',
         url: element.attr('href'),
-        data: {js: true, nid: element.attr('data-id')},
+        data: data,
         dataType: 'json',
         success: function(data) {
-          console.log(data);
-
           if (data.status) {
-            element
-              .attr('href', data.link)
-              .html(data.text)
-              .removeClass('bookmarked', 'unbookmarked')
-              .addClass(data.status);
+            if (data.status == 'remove') {
+              element.parent().hide('slow').remove();
+            }
+            else {
+              element
+                .attr('href', data.link)
+                .html(data.text)
+                .removeClass('bookmarked', 'unbookmarked')
+                .addClass(data.status);
+            }
           }
           else {
             alert(data.error);
