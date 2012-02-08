@@ -124,8 +124,6 @@ function pinboard_form() {
 
 /**
  *  Implementation of hook_validate()
- *
- *  @todo use idn_to_ascii() for PHP 5.3
  */
 function pinboard_form_validate($form, &$form_state) {
   $url = $form_state['values']['url'];
@@ -159,6 +157,27 @@ function pinboard_form_submit($form, &$form_state) {
   }
 
   drupal_set_message($message);
+}
+
+/**
+ * Implementation of hook_user
+ * Inject a private/public bookmarks page option
+ */
+function pinboard_user($op, &$edit, &$account, $category = NULL) {
+  if ($op == 'form' && $category == 'account') {
+    $data = unserialize($account->data);
+    $form['pinboard_visibility'] = array(
+      '#type' => 'radios',
+      '#title' => t('Bookmarks visibility'),
+      '#options' => array(
+        'private' => t('Private'),
+        'public'  =>t('Public')
+      ),
+      '#default_value' => isset($data['pinboard_visibility']) ? $data['pinboard_visibility'] : 'private'
+    );
+
+    return $form;
+  }
 }
 
 /**
