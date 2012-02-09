@@ -135,13 +135,13 @@ function pinboard_url_lookup($url) {
     @$doc->loadHTML($response->data);
 
     $titles = $doc->getElementsByTagName('title');
-    $cache->data['title'] = $titles->item(0)->nodeValue;
+    $cache->data['title'] = check_plain($titles->item(0)->nodeValue);
 
     $metas = $doc->getElementsByTagName('meta');
     for ($i = 0; $i < $metas->length; $i++) {
       $meta = $metas->item($i);
       if ($meta->getAttribute('name') == 'description') {
-        $cache->data['description'] = $meta->getAttribute('content');
+        $cache->data['description'] = check_plain($meta->getAttribute('content'));
       }
     }
 
