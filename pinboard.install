@@ -5,6 +5,23 @@
  *
  */
 
+/**
+ *  Implementation of hook_install()
+ */
+function pinboard_install() {
+  drupal_install_schema('pinboard');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function pinboard_uninstall() {
+  drupal_uninstall_schema('pinboard');
+}
+
+/**
+ * Implementation of hook_schema()
+ */
 function pinboard_schema() {
 
   $schema['pinboard'] = array(
@@ -18,6 +35,13 @@ function pinboard_schema() {
       ),
       'uid' => array(
         'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid if a node is bookmarked',
         'type'        => 'int',
         'unsigned'    => 'int',
         'not null'    => TRUE,
@@ -67,17 +91,11 @@ function pinboard_schema() {
   return $schema;
 }
 
+function pinboard_update_6000(&$sandbox) {
+  $ret = array();
 
-/**
- *  Implementation of hook_install()
- */
-function pinboard_install() {
-  drupal_install_schema('pinboard');
-}
+  // works better than db_add_field() because of column position
+  $ret[] = update_sql("ALTER TABLE {pinboard} ADD nid INT unsigned NOT NULL DEFAULT 0 AFTER uid");
 
-/**
- * Implementation of hook_uninstall()
- */
-function pinboard_uninstall() {
-  drupal_uninstall_schema('pinboard');
+  return $ret;
 }
