@@ -63,12 +63,16 @@ function pinboard_delete($bid) {
  *    Node id to generate bookmark link for
  * @return
  *    An html link
- *
- * @todo check if node/link already bookmarked by user
  */
 function pinboard_create_link($nid) {
+  global $user;
 
-  return l('Bookmark', 'bookmark/add/'. $node->nid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link', 'data-id' => $node->nid)));
+  if ($bid = db_result(db_query("SELECT bid FROM {pinboard} WHERE nid = %d AND uid = %d", $nid, $user->uid))) {
+    return l('Remove bookmark', 'bookmark/delete/'. $bid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link bookmarked', 'data-id' => $nid)));
+  }
+  else {
+    return l('Bookmark', 'bookmark/add/'. $nid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link', 'data-id' => $nid)));
+  }
 }
 
 /**
