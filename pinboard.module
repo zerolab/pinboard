@@ -59,6 +59,7 @@ function pinboard_menu() {
     'page arguments' => array(1, 2),
     'access callback' => 'pinboard_access',
     'access arguments' => array('create bookmarks', 'delete own bookmarks'),
+    'file' => 'pinboard.pages.inc',
     'type' => MENU_CALLBACK
   );
 
@@ -144,6 +145,7 @@ function pinboard_form_submit($form, &$form_state) {
   global $user;
 
   $bookmark = new StdClass;
+  $bookmark->uid    = $user->uid;
   $bookmark->url    = check_url($form_state['values']['url']);
   $bookmark->title  = check_plain($form_state['values']['title']);
   $bookmark->description = check_plain($form_state['values']['description']);
@@ -159,7 +161,7 @@ function pinboard_form_submit($form, &$form_state) {
 }
 
 /**
- * Implementation of hook_user
+ * Implementation of hook_user()
  * Inject a private/public bookmarks page option
  */
 function pinboard_user($op, &$edit, &$account, $category = NULL) {

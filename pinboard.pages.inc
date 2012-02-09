@@ -59,6 +59,8 @@ function pinboard_actions_page($action, $content_id = NULL) {
     return;
   }
 
+  global $user;
+
   // Oh, Devel, we love you but not here
   $GLOBALS['devel_shutdown'] = FALSE;
 
@@ -68,8 +70,10 @@ function pinboard_actions_page($action, $content_id = NULL) {
     $node = node_load($content_id);
 
     $bookmark = new StdClass;
-    $bookmark->url = url('node/'. $node->nid, array('absolute' => TRUE));
-    $bookmark->title = $node->title;
+    $bookmark->uid   = $user->uid;
+    $bookmark->nid    = $node->nid;
+    $bookmark->url    = url('node/'. $node->nid, array('absolute' => TRUE));
+    $bookmark->title  = $node->title;
     $bookmark->description = check_plain($node->teaser);
 
     if ($bid = pinboard_save($bookmark)) {
