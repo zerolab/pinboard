@@ -89,7 +89,7 @@ function pinboard_load_bookmarks($uid = 0) {
     return;
   }
 
-  $result = db_query("SELECT * FROM {pinboard} WHERE uid = %d", $uid);
+  $result = db_query("SELECT * FROM {pinboard} WHERE uid = %d ORDER BY created DESC", $uid);
 
   while ($bookmark = db_fetch_object($result)) {
     $bookmarks[] = $bookmark;
