@@ -150,6 +150,9 @@ function pinboard_form_submit($form, &$form_state) {
   $bookmark->title  = check_plain($form_state['values']['title']);
   $bookmark->description = check_plain($form_state['values']['description']);
 
+  pinboard_url_lookup($bookmark->url);
+  return;
+
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
   }

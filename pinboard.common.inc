@@ -97,3 +97,10 @@ function pinboard_load_bookmarks($uid = 0) {
 
   return $bookmarks;
 }
+
+/**
+ * Return the url hash
+ */
+function pinboard_url_hash($url) {
+  return md5($url);
+}
