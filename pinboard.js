@@ -32,7 +32,7 @@ Drupal.behaviors.pinboard = function(context) {
               element
                 .attr('href', data.link)
                 .html(data.text)
-                .removeClass('bookmarked', 'unbookmarked')
+                .removeClass('pinboard-bookmark')
                 .addClass(data.status);
             }
           }

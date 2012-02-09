@@ -80,7 +80,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
       $message = t('Bookmark successfully added');
       $link = 'bookmark/delete/'. $bid;
       $text = 'Remove bookmark';
-      $status = 'bookmarked';
+      $status = 'pinboard-bookmark';
     }
     else {
       $error = t('Could not add bookmark.');
@@ -95,7 +95,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
     if (is_numeric($_REQUEST['nid']) ) {
       $link = url('bookmark/add/'. $_REQUEST['nid'], array('absolute' => TRUE));
-      $status = 'unbookmarked';
+      $status = TRUE;
     }
   }
 
