@@ -150,6 +150,21 @@ function pinboard_form_submit($form, &$form_state) {
   $bookmark->title  = check_plain($form_state['values']['title']);
   $bookmark->description = check_plain($form_state['values']['description']);
 
+  if (empty($bookmark->title)) {
+    $data = pinboard_url_lookup($bookmark->url);
+
+    if (isset($data['title']) && !empty($data['title'])) {
+      $bookmark->title = $data['title'];
+    }
+    else {
+      $bookmark->title = $bookmark->url;
+    }
+
+    if (empty($bookmark->description) && !empty($data['description'])) {
+      $bookmark->description = $data['description'];
+    }
+  }
+
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
   }

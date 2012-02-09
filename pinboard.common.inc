@@ -97,3 +97,55 @@ function pinboard_load_bookmarks($uid = 0) {
 
   return $bookmarks;
 }
+
+/**
+ * Return the url hash
+ */
+function pinboard_url_hash($url) {
+  return md5($url);
+}
+
+/**
+ * Get bookmark title/description from the given url
+ * @param $url
+ *    The url to retrieve information for
+ */
+function pinboard_url_lookup($url) {
+  $hash = pinboard_url_hash($url);
+
+  if ($cache = cache_get('pinboard:url__'. $hash)) {
+    return $cache->data;
+  }
+
+  $response = drupal_http_request($url);
+
+  $cache = new StdClass;
+  $cache->cid = 'pinboard:url__'. $hash;
+  $cache->created = REQUEST_TIME;
+  $cache->expire = CACHE_PERMANENT;
+
+  $cache->data = array(
+    'code' => $response->code,
+    'headers' => $response->headers,
+    'url' => isset($response->redirect_url) ? $response->redirect_url : $url
+  );
+
+  if ($response->code == '200' && !empty($response->data)) {
+    $doc = new DOMDocument();
+    @$doc->loadHTML($response->data);
+
+    $titles = $doc->getElementsByTagName('title');
+    $cache->data['title'] = check_plain($titles->item(0)->nodeValue);
+
+    $metas = $doc->getElementsByTagName('meta');
+    for ($i = 0; $i < $metas->length; $i++) {
+      $meta = $metas->item($i);
+      if ($meta->getAttribute('name') == 'description') {
+        $cache->data['description'] = check_plain($meta->getAttribute('content'));
+      }
+    }
+
+    cache_set($cache->cid, $cache->data);
+    return $cache->data;
+  }
+}
