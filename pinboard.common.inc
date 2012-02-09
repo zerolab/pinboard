@@ -113,14 +113,14 @@ function pinboard_url_hash($url) {
 function pinboard_url_lookup($url) {
   $hash = pinboard_url_hash($url);
 
-  if ($cache = cache_get('pinboard_url:'. $hash)) {
+  if ($cache = cache_get('pinboard:url__'. $hash)) {
     return $cache->data;
   }
 
   $response = drupal_http_request($url);
 
   $cache = new StdClass;
-  $cache->cid = 'pinboard_url:'. $hash;
+  $cache->cid = 'pinboard:url__'. $hash;
   $cache->created = REQUEST_TIME;
   $cache->expire = CACHE_PERMANENT;
 
