@@ -18,12 +18,13 @@
  */
 function pinboard_user_page($account) {
   global $user;
-  $account_data = unserialize($account->data);
+  $is_owner = $user->uid == $account->uid;
 
+  $account_data = unserialize($account->data);
   // set to private by default
   $is_private = $account_data['pinboard_visibility'] == 'private' || !isset($account_data['pinboard_visibility']);
 
-  if ($is_private && $account->uid !== $user->uid) {
+  if ($is_private && !$is_owner) {
     return 'There is nothing to see here. Carry on.';
   }
 
@@ -35,8 +36,22 @@ function pinboard_user_page($account) {
   }
 
   foreach($bookmarks as $bookmark) {
-    $list[] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) ) .' '.
-      l('&times;', 'bookmark/delete/'. $bookmark->bid, array('absolute' => TRUE, 'html' => TRUE, 'attributes' => array('class' => 'pinboard-link')));
+    $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
+
+    if ($is_owner) {
+      $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
+        'absolute' => TRUE,
+        'html' => TRUE,
+        'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
+        )
+      );
+    }
+
+    if (!empty($bookmark->description)) {
+      $item .= '<p>'. $bookmark->description .'</p>';
+    }
+
+    $list[] = $item;
   }
 
   return theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
