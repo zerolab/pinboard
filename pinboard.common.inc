@@ -172,9 +172,24 @@ function pinboard_url_lookup($url) {
   }
 }
 
+/**
+ * Logs bookmark activity for a given user
+ *
+ * @param $bid
+ *    The bookmark id
+ * @param $action
+ *    PINBOARD_ADD, PINBOARD_DELETE, PINBOARD_EDIT, PINBOARD_MODERATE
+ * @param $uid
+ *    The user id. Will get the current user id if none specified
+ * @param $timestamp
+ *    The activity timestamp. defaults to current time if none given.
+ *
+ * @return Boolean
+ *    The success status of the log
+ */
 function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
-  global $user;
   if (!$uid) {
+    global $user;
     $uid = $user->uid;
   }
 
