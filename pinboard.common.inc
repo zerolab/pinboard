@@ -4,6 +4,11 @@
  *    Common utility functions for the pinboard module
  */
 
+define('PINBOARD_ADD', 0);
+define('PINBOARD_DELETE', 1);
+define('PINBOARD_UPDATE', 2);
+define('PINBOARD_MODERATE', 3); // The bookmark got deleted by an administrator
+
 /**
  * Save/update a bookmark
  *
@@ -29,11 +34,14 @@ function pinboard_save($bookmark) {
   }
   else {
     $nid = isset($bookmark->nid) ? $bookmark->nid : 0;
+    $timestamp = time();
 
     // add new bookmark
     db_query("INSERT INTO {pinboard} (uid, nid, url, title, description, created) "
-    ."VALUES (%d, %d, '%s', '%s', '%s', %d)", $bookmark->uid, $nid, $bookmark->url, $bookmark->title, $bookmark->description, time());
+    ."VALUES (%d, %d, '%s', '%s', '%s', %d)", $bookmark->uid, $nid, $bookmark->url, $bookmark->title, $bookmark->description, $timestamp);
     $bid = db_last_insert_id('pinboard', 'bid');
+
+    pinboard_log_activity($bid, $bookmark->uid, PINBOARD_ADD, $timestamp);
   }
 
   return $bid;
@@ -44,16 +52,30 @@ function pinboard_save($bookmark) {
  *
  * @param $bid
  *    The bookmark id
+ *
+ * @return TRUE if delete successful
  */
 function pinboard_delete($bid) {
   global $user;
 
+  $owner = db_result(db_query("SELECT uid FROM {pinboard} WHERE bid = %d", $bid));
+
   $query = "DELETE FROM {pinboard} WHERE bid = %d";
-  if (!user_access('delete any bookmarks', $user)) {
+  $action = PINBOARD_DELETE;
+  if (!user_access('delete any bookmarks', $user) || $user->uid == $owner) {
     $query .= " AND uid = ". $user->uid;
   }
+  else {
+    $action = PINBOARD_MODERATE;
+  }
 
-  return db_query($query, $bid);
+  if ($ret = db_query($query, $bid)) {
+    pinboard_log_activity($bid, $action, $owner);
+
+    return TRUE;
+  }
+
+  return;
 }
 
 /**
@@ -148,4 +170,17 @@ function pinboard_url_lookup($url) {
     cache_set($cache->cid, $cache->data);
     return $cache->data;
   }
+}
+
+function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
+  global $user;
+  if (!$uid) {
+    $uid = $user->uid;
+  }
+
+  if (!$timestamp) {
+    $timestamp = time();
+  }
+
+  return db_query("INSERT INTO {pinboard_activity} VALUES(%d, %d, %d, %d)", $bid, $uid, $activity, $timestamp);
 }
