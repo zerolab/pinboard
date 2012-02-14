@@ -41,7 +41,7 @@ function pinboard_save($bookmark) {
     ."VALUES (%d, %d, '%s', '%s', '%s', %d)", $bookmark->uid, $nid, $bookmark->url, $bookmark->title, $bookmark->description, $timestamp);
     $bid = db_last_insert_id('pinboard', 'bid');
 
-    pinboard_log_activity($bid, $bookmark->uid, PINBOARD_ADD, $timestamp);
+    pinboard_log_activity($bid, PINBOARD_ADD, $bookmark->uid, $timestamp);
   }
 
   return $bid;
@@ -133,20 +133,15 @@ function pinboard_url_hash($url) {
  *    The url to retrieve information for
  */
 function pinboard_url_lookup($url) {
-  $hash = pinboard_url_hash($url);
+  $cache_id = 'url__'. pinboard_url_hash($url);
 
-  if ($cache = cache_get('pinboard:url__'. $hash)) {
+  if ($cache = cache_get($cache_id, 'cache_pinboard')) {
     return $cache->data;
   }
 
   $response = drupal_http_request($url);
 
-  $cache = new StdClass;
-  $cache->cid = 'pinboard:url__'. $hash;
-  $cache->created = REQUEST_TIME;
-  $cache->expire = CACHE_PERMANENT;
-
-  $cache->data = array(
+  $data = array(
     'code' => $response->code,
     'headers' => $response->headers,
     'url' => isset($response->redirect_url) ? $response->redirect_url : $url
@@ -157,19 +152,21 @@ function pinboard_url_lookup($url) {
     @$doc->loadHTML($response->data);
 
     $titles = $doc->getElementsByTagName('title');
-    $cache->data['title'] = check_plain($titles->item(0)->nodeValue);
+    $data['title'] = check_plain($titles->item(0)->nodeValue);
 
     $metas = $doc->getElementsByTagName('meta');
     for ($i = 0; $i < $metas->length; $i++) {
       $meta = $metas->item($i);
       if ($meta->getAttribute('name') == 'description') {
-        $cache->data['description'] = check_plain($meta->getAttribute('content'));
+        $data['description'] = check_plain($meta->getAttribute('content'));
       }
     }
 
-    cache_set($cache->cid, $cache->data);
-    return $cache->data;
+    cache_set($cache_id, $data, 'cache_pinboard');
+    return $data;
   }
+
+  return;
 }
 
 /**
@@ -197,5 +194,5 @@ function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
     $timestamp = time();
   }
 
-  return db_query("INSERT INTO {pinboard_activity} VALUES(%d, %d, %d, %d)", $bid, $uid, $activity, $timestamp);
+  return db_query("INSERT INTO {pinboard_activity} VALUES(%d, %d, %d, %d)", $bid, $uid, $action, $timestamp);
 }
