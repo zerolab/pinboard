@@ -105,13 +105,25 @@ function pinboard_create_link($nid) {
  * @return
  *    An array with bookmark details
  */
-function pinboard_load_bookmarks($uid = 0) {
+function pinboard_load_bookmarks($uid = 0, $bids = NULL) {
 
-  if (!$uid) {
+  if (!$uid || !is_numeric($uid)) {
     return;
   }
 
-  $result = db_query("SELECT * FROM {pinboard} WHERE uid = %d ORDER BY created DESC", $uid);
+  $query = "SELECT * FROM {pinboard} WHERE uid = $uid";
+
+  if ($bids) {
+    if (is_array($bids)) {
+      $query .= " AND bid IN (". implode(', ', $bids) .")";
+    }
+    else {
+      $query .= " AND bid = $bids";
+    }
+  }
+
+  $query .= " ORDER BY created DESC";
+  $result = db_query($query);
 
   while ($bookmark = db_fetch_object($result)) {
     $bookmarks[] = $bookmark;
@@ -195,4 +207,32 @@ function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
   }
 
   return db_query("INSERT INTO {pinboard_activity} VALUES(%d, %d, %d, %d)", $bid, $uid, $action, $timestamp);
+}
+
+/**
+ * Returns user bookmarking activity for a given timespan
+ *
+ * Useful for syncing bookmarks or just showing some history
+ *
+ * @param $uid
+ *    The user id to get the activity for
+ * @param $since
+ *    The start timestamp
+ *
+ * @return array
+ *    An array with
+ */
+function pinboard_get_activity($uid, $timestamp) {
+  $results = db_query("SELECT bid, action, timestamp FROM {pinboard_activity} "
+    . "WHERE uid = %d AND timestamp >= %d ORDER BY timestamp ASC", $uid, $timestamp);
+
+  while ($r = db_fetch_array($results)) {
+    $activity[] = $r;
+  }
+
+  if (count($activity)) {
+    return $activity;
+  }
+
+  return;
 }
