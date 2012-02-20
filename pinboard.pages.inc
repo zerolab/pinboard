@@ -82,14 +82,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
   $js = $_REQUEST['js'];
 
   if ($action == 'add') {
-    $node = node_load($content_id);
-
-    $bookmark = new StdClass;
-    $bookmark->uid   = $user->uid;
-    $bookmark->nid    = $node->nid;
-    $bookmark->url    = url('node/'. $node->nid, array('absolute' => TRUE));
-    $bookmark->title  = $node->title;
-    $bookmark->description = check_plain($node->teaser);
+    $bookmark = pinboard_node_bookmark($content_id);
 
     if ($bid = pinboard_save($bookmark)) {
       $message = t('Bookmark successfully added');

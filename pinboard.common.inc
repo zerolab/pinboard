@@ -48,6 +48,37 @@ function pinboard_save($bookmark) {
 }
 
 /**
+ * Build a bookmark object from a node
+ *
+ * @param $nid
+ *    The node id
+ *
+ * @return $bookmark
+ *    A bookmark object ready to be saved
+ */
+function pinboard_node_bookmark($nid) {
+  $node = node_load($nid);
+
+  if (!$node) {
+    return;
+  }
+
+  global $user;
+
+  $bookmark = new StdClass();
+
+  $bookmark->uid    = $user->uid;
+  $bookmark->nid    = $node->nid;
+  $bookmark->url    = url('node/'. $node->nid, array('absolute' => TRUE));
+  $bookmark->title  = $node->title;
+  $bookmark->description = strip_tags($node->teaser);
+
+  module_invoke_all('pinboard_node_bookmark', $bookmark, $node);
+
+  return $bookmark;
+}
+
+/**
  * Removes a bookmark.
  *
  * @param $bid
@@ -114,7 +145,7 @@ function pinboard_load_bookmarks($uid = 0, $bids = NULL) {
   $query = "SELECT * FROM {pinboard} WHERE uid = $uid";
 
   if ($bids) {
-    if (is_array($bids)) {
+    if (is_array($bids) && count($bids)) {
       $query .= " AND bid IN (". implode(', ', $bids) .")";
     }
     else {
@@ -195,6 +226,8 @@ function pinboard_url_lookup($url) {
  *
  * @return Boolean
  *    The success status of the log
+ *
+ * @todo Ensure unique entries!
  */
 function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
   if (!$uid) {
