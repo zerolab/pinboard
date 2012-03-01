@@ -68,8 +68,9 @@ function pinboard_menu() {
     'title' => t('Bookmarks'),
     'page callback' => 'pinboard_user_page',
     'page arguments' => array(1),
-    'access callback' => 'pinboard_access',
-    'access arguments' => array('view public bookmarks'),
+    'access callback' => TRUE,
+  //  'access callback' => 'pinboard_bookmarks_access',
+  //  'access arguments' => array(1),
     'file' => 'pinboard.pages.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 5
@@ -90,6 +91,33 @@ function pinboard_access() {
   }
 
   return TRUE;
+}
+
+/**
+ * Checks for bookmarks page access
+ *
+ * @param $account
+ *    The user account object
+ *
+ * @return Boolean
+ *
+ * @see user_view_access()
+ */
+function pinboard_bookmarks_access($account) {
+  $data = unserialize($account->data);
+  $public = ($data['pinboard_visibility'] == 'public');
+
+  return $account && $account->uid &&
+    (
+      // Always let users view their own bookmarks.
+      ($GLOBALS['user']->uid == $account->uid) ||
+      // Administrators can view all bookmarks.
+      user_access('administer users') ||
+      // The viewed user is not blocked and logged in at least once.
+      // The bookmarks page is public and the viewing user has permission
+      ($account->access && $account->status && $public &&
+        user_access('view public bookmarks', $GLOBALS['user']) )
+    );
 }
 
 /**
@@ -132,7 +160,7 @@ function pinboard_form_validate($form, &$form_state) {
     $url = idn_to_ascii($url);
   }
   if (!valid_url($url, TRUE) ) {
-    form_set_error('url', 'Please enter a valid URL');
+    form_set_error('url', 'Please enter a full, valid URL');
   }
 }
 

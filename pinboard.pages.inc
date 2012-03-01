@@ -20,12 +20,8 @@ function pinboard_user_page($account) {
   global $user;
   $is_owner = $user->uid == $account->uid;
 
-  $account_data = unserialize($account->data);
-  // set to private by default
-  $is_private = $account_data['pinboard_visibility'] == 'private' || !isset($account_data['pinboard_visibility']);
-
-  if ($is_private && !$is_owner) {
-    return 'There is nothing to see here. Carry on.';
+  if (!pinboard_bookmarks_access($account)) {
+    return 'This user has no public bookmarks.';
   }
 
   $bookmarks = pinboard_load_bookmarks($account->uid);
