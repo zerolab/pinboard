@@ -69,8 +69,6 @@ function pinboard_menu() {
     'page callback' => 'pinboard_user_page',
     'page arguments' => array(1),
     'access callback' => TRUE,
-  //  'access callback' => 'pinboard_bookmarks_access',
-  //  'access arguments' => array(1),
     'file' => 'pinboard.pages.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 5
