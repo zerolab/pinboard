@@ -227,6 +227,6 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
  * Adds the pinboard JavaScript and CSS
  */
 function pinboard_init() {
-  drupal_add_js(drupal_get_path('module', 'pinboard'). '/pinboard.js');
-  drupal_add_css(drupal_get_path('module', 'pinboard'). '/pinboard.css');
+  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
+  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
 }
