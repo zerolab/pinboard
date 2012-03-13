@@ -116,3 +116,103 @@ function pinboard_actions_page($action, $content_id = NULL) {
     drupal_goto();
   }
 }
+
+/**
+ * Handler for the bookmarklet callback page
+ */
+function pinboard_bookmarklet_page() {
+  global $user;
+
+  if (!$user->uid) {
+    return t('You must be logged in to use this functionality');
+  }
+
+  if (!user_access('create bookmarks', $user)) {
+    return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
+  }
+
+  return drupal_get_form('pinboard_form');
+}
+
+/**
+ * Implementation of hook_form()
+ * This is the bookmark creation form
+ */
+function pinboard_form() {
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => 'URL',
+    '#required' => TRUE
+  );
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Title',
+  );
+
+  $form['description'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Short description',
+    '#description' => 'Enter a short description or summary for the bookmarked URL. Up to 220 characters.'
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Bookmark')
+  );
+
+  return $form;
+}
+
+/**
+ *  Implementation of hook_validate()
+ */
+function pinboard_form_validate($form, &$form_state) {
+  $url = $form_state['values']['url'];
+
+  if (function_exists('idn_to_ascii')) {
+    $url = idn_to_ascii($url);
+  }
+  if (!valid_url($url, TRUE) ) {
+    form_set_error('url', 'Please enter a full, valid URL');
+  }
+}
+
+/**
+ *  Handles the bookmark creation
+ *
+ * @todo get title/description via drupal_http_request to $url if empty
+ */
+function pinboard_form_submit($form, &$form_state) {
+  global $user;
+
+  $bookmark = new StdClass;
+  $bookmark->uid    = $user->uid;
+  $bookmark->url    = check_url($form_state['values']['url']);
+  $bookmark->title  = check_plain($form_state['values']['title']);
+  $bookmark->description = check_plain($form_state['values']['description']);
+
+  if (empty($bookmark->title)) {
+    $data = pinboard_url_lookup($bookmark->url);
+
+    if (isset($data['title']) && !empty($data['title'])) {
+      $bookmark->title = $data['title'];
+    }
+    else {
+      $bookmark->title = $bookmark->url;
+    }
+
+    if (empty($bookmark->description) && !empty($data['description'])) {
+      $bookmark->description = $data['description'];
+    }
+  }
+
+  if (pinboard_save($bookmark)) {
+    $message = 'Bookmark successfully added';
+  }
+  else {
+    $message = 'Could not save bookmark.';
+  }
+
+  drupal_set_message($message);
+}
