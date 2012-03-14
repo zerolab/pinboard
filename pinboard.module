@@ -140,6 +140,26 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
+ * Implementation of hook_preprocess_page()
+ *
+ * Add our template suggestions for the bookmarklet page
+ */
+function pinboard_preprocess_page(&$vars) {
+  if ($_GET['q'] == 'bookmark/add' && !arg(2)) {
+    $vars['template_files'][] = 'page-pinboard-bookmarklet';
+    $vars['pinboard_css'] = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.css', array('absolute' => TRUE));
+  }
+}
+/**
+ * Implementation of hook_theme_registry_alter()
+ * Move pinboard theme path to the top of suggestions
+ */
+function pinboard_theme_registry_alter(&$registry) {
+  $path = drupal_get_path('module', 'pinboard') .'/theme';
+  array_unshift($registry['page']['theme paths'], $path);
+}
+
+/**
  * Implementation of hook_init()
  * Adds the pinboard JavaScript and CSS
  */

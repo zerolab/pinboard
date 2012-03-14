@@ -1,0 +1,46 @@
+/* Reset */
+html, body, form, fieldset, p, div, h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font: inherit;
+  margin:0;
+  padding:0;
+  vertical-align: baseline;
+  -webkit-text-size-adjust:none;
+}
+
+ul, li, ol, dl, dd, dt {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+body {
+  line-height: 1;
+}
+
+/* Pinboard bookmarklet */
+body {
+  color:#333;
+  font:16px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding:16px;
+}
+
+label {
+  display:block;
+  color:#4e4e4e;
+  font-weight:700;
+}
+
+input[type="text"],
+textarea {
+  border:1px solid #bababa;
+  font-size:18px;
+  height:30px;
+  margin:0;
+  padding:4px 8px;
+  width:332px;
+}
+
+.description {
+  font-size:12px;
+}
