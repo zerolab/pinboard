@@ -36,9 +36,19 @@ function pinboard_perm() {
 function pinboard_menu() {
   $items = array();
 
-  $items['bookmark/add'] = array(
+  // bookmarklet
+  $items['bookmark/let'] = array(
     'title' => 'Add bookmark',
     'page callback' => 'pinboard_bookmarklet_page',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'pinboard.pages.inc'
+  );
+
+  $items['bookmark/ed'] = array(
+    'title' => 'Bookmarked',
+    'page callback' => 'pinboard_bookmarklet_page',
+    'page arguments' => array('success'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'pinboard.pages.inc'
@@ -145,7 +155,7 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
  * Add our template suggestions for the bookmarklet page
  */
 function pinboard_preprocess_page(&$vars) {
-  if ($_GET['q'] == 'bookmark/add' && !arg(2)) {
+  if ($_GET['q'] == 'bookmark/let' || $_GET['q'] == 'bookmark/ed') {
     $vars['template_files'][] = 'page-pinboard-bookmarklet';
     $vars['pinboard_css'] = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.css', array('absolute' => TRUE));
   }
