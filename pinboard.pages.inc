@@ -148,6 +148,11 @@ function pinboard_form() {
   $title = isset($_GET['t']) ? check_plain($_GET['t']) : '';
   $description = isset($_GET['d']) ? check_plain($_GET['d']) : '';
 
+  $form['messages'] = array(
+    '#type' => 'markup',
+    '#value' => '<div id="messages"></div>'
+  );
+
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => 'URL',
