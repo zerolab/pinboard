@@ -1,3 +1,8 @@
+/**
+ * Pinboard Bookmarklet
+ *
+ * @todo add keypress handler for Esc
+ */
 var frame_count = 0;
 
 (function() {
@@ -34,4 +39,11 @@ var frame_count = 0;
 
   div.appendChild(i);
   document.body.insertBefore(div, document.body.firstChild);
-})();
+})();    i.setAttribute("onLoad", "frame_count++;pinboard_frame_load();");
+function pinboard_frame_load(event) {
+  var o = document.getElementById("pinboard_overlay");
+
+  if (o && frame_count === 2) {
+    setTimeout(function(){ document.body.removeChild(o);}, 1000);
+  }
+}
