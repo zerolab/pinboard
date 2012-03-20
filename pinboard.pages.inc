@@ -139,20 +139,28 @@ function pinboard_bookmarklet_page() {
  * This is the bookmark creation form
  */
 function pinboard_form() {
+
+  $url = isset($_GET['u']) ? check_url($_GET['u']) : '';
+  $title = isset($_GET['t']) ? check_plain($_GET['t']) : '';
+  $description = isset($_GET['d']) ? check_plain($_GET['d']) : '';
+
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => 'URL',
+    '#default_value' => $url,
     '#required' => TRUE
   );
 
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => 'Title',
+    '#default_value' => $title
   );
 
   $form['description'] = array(
     '#type' => 'textarea',
     '#title' => 'Short description',
+    '#default_value' => $description,
     '#description' => 'Enter a short description or summary for the bookmarked URL. Up to 220 characters.'
   );
 
