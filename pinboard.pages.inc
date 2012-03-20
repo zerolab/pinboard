@@ -120,18 +120,22 @@ function pinboard_actions_page($action, $content_id = NULL) {
 /**
  * Handler for the bookmarklet callback page
  */
-function pinboard_bookmarklet_page() {
+function pinboard_bookmarklet_page($status = NULL) {
   global $user;
 
   if (!$user->uid) {
-    return t('You must be logged in to use this functionality');
+    $return = t('You must be logged in to use this functionality');
   }
-
-  if (!user_access('create bookmarks', $user)) {
+  else if (!user_access('create bookmarks', $user)) {
     return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
   }
 
-  return drupal_get_form('pinboard_form');
+  if ($status == 'success') {
+    return ' ';
+  }
+
+  drupal_set_header("Access-Control-Allow-Origin: *");
+  return drupal_get_form("pinboard_form");
 }
 
 /**
