@@ -269,3 +269,36 @@ function pinboard_get_activity($uid, $timestamp) {
 
   return;
 }
+
+/**
+ * Prepare a bookmark object.
+ * Fetch data if necessary
+ *
+ * @return object
+ */
+function pinboard_bookmark_prepare($url, $title = '', $description = '') {
+  global $user;
+
+  $bookmark = new StdClass;
+  $bookmark->uid    = $user->uid;
+  $bookmark->url    = $url;
+  $bookmark->title  = $title;
+  $bookmark->description = $description;
+
+  if (empty($bookmark->title)) {
+    $data = pinboard_url_lookup($bookmark->url);
+
+    if (isset($data['title']) && !empty($data['title'])) {
+      $bookmark->title = $data['title'];
+    }
+    else {
+      $bookmark->title = $bookmark->url;
+    }
+
+    if (empty($bookmark->description) && !empty($data['description'])) {
+      $bookmark->description = $data['description'];
+    }
+  }
+
+  return $bookmark;
+}
