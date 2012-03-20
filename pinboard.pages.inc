@@ -192,28 +192,11 @@ function pinboard_form_validate($form, &$form_state) {
  * @todo get title/description via drupal_http_request to $url if empty
  */
 function pinboard_form_submit($form, &$form_state) {
-  global $user;
+  $url = check_url($form_state['values']['url']);
+  $title = check_plain($form_state['values']['title']);
+  $description = check_plain($form_state['values']['description']);
 
-  $bookmark = new StdClass;
-  $bookmark->uid    = $user->uid;
-  $bookmark->url    = check_url($form_state['values']['url']);
-  $bookmark->title  = check_plain($form_state['values']['title']);
-  $bookmark->description = check_plain($form_state['values']['description']);
-
-  if (empty($bookmark->title)) {
-    $data = pinboard_url_lookup($bookmark->url);
-
-    if (isset($data['title']) && !empty($data['title'])) {
-      $bookmark->title = $data['title'];
-    }
-    else {
-      $bookmark->title = $bookmark->url;
-    }
-
-    if (empty($bookmark->description) && !empty($data['description'])) {
-      $bookmark->description = $data['description'];
-    }
-  }
+  $bookmark = pinboard_bookmark_prepare($url, $title, $description);
 
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
