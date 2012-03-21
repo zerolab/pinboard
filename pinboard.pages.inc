@@ -26,9 +26,14 @@ function pinboard_user_page($account) {
 
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
+  $path = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.js', array('absolute' => TRUE));
 
+  $return = <<<EOD
+<a href="javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea>javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
+EOD;
   if (!$bookmarks || empty($bookmarks)) {
-    return 'No bookmarks yet.';
+    return $return . 'No bookmarks yet.';
   }
 
   foreach($bookmarks as $bookmark) {
@@ -50,7 +55,7 @@ function pinboard_user_page($account) {
     $list[] = $item;
   }
 
-  return theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
+  return $return . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
 }
 
 /**
@@ -130,8 +135,6 @@ function pinboard_bookmarklet_page($status = NULL) {
     return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
   }
 
-  if ($status == 'success') {
-    return ' ';
   drupal_set_header("Access-Control-Allow-Origin: *");
 
   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
