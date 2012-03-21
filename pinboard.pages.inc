@@ -207,7 +207,7 @@ function pinboard_form() {
     '#type' => 'textarea',
     '#title' => 'Short description',
     '#default_value' => $description,
-    '#description' => 'Enter a short description or summary for the bookmarked URL. Up to 220 characters.'
+    '#description' => 'Short description. Up to 220 characters.'
   );
 
   $form['submit'] = array(

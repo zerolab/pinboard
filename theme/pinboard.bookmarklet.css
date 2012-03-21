@@ -25,6 +25,10 @@ body {
   padding:16px;
 }
 
+#page {
+  margin:0 auto;
+}
+
 label {
   display:block;
   color:#4e4e4e;
@@ -34,13 +38,30 @@ label {
 input[type="text"],
 textarea {
   border:1px solid #bababa;
-  font-size:18px;
+  font-size:14px;
   height:30px;
   margin:0;
   padding:4px 8px;
-  width:332px;
+  width:348px;
+}
+
+.form-item {
+  margin: 0 0 .5em;
 }
 
 .description {
   font-size:12px;
+  margin:-.5em 0 0;
+}
+
+.description.textarea-identifier {
+  display:none;
+}
+
+#messages {
+  font-size:.8em;
+}
+
+.error {
+  color:#f00;
 }
