@@ -132,10 +132,47 @@ function pinboard_bookmarklet_page($status = NULL) {
 
   if ($status == 'success') {
     return ' ';
+  drupal_set_header("Access-Control-Allow-Origin: *");
+
+  if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if ($status == 'success') {
+      return ' ';
+    }
+
+    return drupal_get_form("pinboard_form");
+  }
+  else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['js'] == 1) {
+    $url = $_POST['u'];
+    if (function_exists('idn_to_ascii')) {
+      $url = idn_to_ascii($url);
+    }
+
+    if (!valid_url($url, TRUE) ) {
+      $status  = 'error';
+      $message = 'Invalid URL. Please enter a proper, full URL.';
+
+      return drupal_json(array('status' => $status, 'message' => $message));
+    }
+
+    $title = check_plain(strip_tags($_POST['t']));
+    $description = check_plain(strip_tags($_POST['d']));
+
+    $bookmark = pinboard_bookmark_prepare(check_url($url), $title, $description);
+
+    if (pinboard_save($bookmark)) {
+      $status = 'success';
+      $message = url('bookmark/ed', array('absolute' => TRUE));
+
+      drupal_set_message('Bookmark successfully added');
+    }
+    else {
+      $status = 'error';
+      $message = t('Uh-oh! Could not save bookmark. Try again later');
+    }
+
+    return drupal_json(array('status' => $status, 'message' => $message));
   }
 
-  drupal_set_header("Access-Control-Allow-Origin: *");
-  return drupal_get_form("pinboard_form");
 }
 
 /**
@@ -209,9 +246,10 @@ function pinboard_form_submit($form, &$form_state) {
 
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
+    $form_state['redirect'] = 'bookmark/ed';
   }
   else {
-    $message = 'Could not save bookmark.';
+    $message = 'Uh-oh! Could not save bookmark.';
   }
 
   drupal_set_message($message);
