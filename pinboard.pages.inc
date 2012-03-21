@@ -26,9 +26,14 @@ function pinboard_user_page($account) {
 
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
+  $path = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.js', array('absolute' => TRUE));
 
+  $return = <<<EOD
+<a href="javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea>javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
+EOD;
   if (!$bookmarks || empty($bookmarks)) {
-    return 'No bookmarks yet.';
+    return $return . 'No bookmarks yet.';
   }
 
   foreach($bookmarks as $bookmark) {
@@ -50,7 +55,7 @@ function pinboard_user_page($account) {
     $list[] = $item;
   }
 
-  return theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
+  return $return . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
 }
 
 /**
@@ -115,4 +120,140 @@ function pinboard_actions_page($action, $content_id = NULL) {
     drupal_set_message($message);
     drupal_goto();
   }
+}
+
+/**
+ * Handler for the bookmarklet callback page
+ */
+function pinboard_bookmarklet_page($status = NULL) {
+  global $user;
+
+  if (!$user->uid) {
+    $return = t('You must be logged in to use this functionality');
+  }
+  else if (!user_access('create bookmarks', $user)) {
+    return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
+  }
+
+  drupal_set_header("Access-Control-Allow-Origin: *");
+
+  if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if ($status == 'success') {
+      return ' ';
+    }
+
+    return drupal_get_form("pinboard_form");
+  }
+  else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['js'] == 1) {
+    $url = $_POST['u'];
+    if (function_exists('idn_to_ascii')) {
+      $url = idn_to_ascii($url);
+    }
+
+    if (!valid_url($url, TRUE) ) {
+      $status  = 'error';
+      $message = 'Invalid URL. Please enter a proper, full URL.';
+
+      return drupal_json(array('status' => $status, 'message' => $message));
+    }
+
+    $title = check_plain(strip_tags($_POST['t']));
+    $description = check_plain(strip_tags($_POST['d']));
+
+    $bookmark = pinboard_bookmark_prepare(check_url($url), $title, $description);
+
+    if (pinboard_save($bookmark)) {
+      $status = 'success';
+      $message = url('bookmark/ed', array('absolute' => TRUE));
+
+      drupal_set_message('Bookmark successfully added');
+    }
+    else {
+      $status = 'error';
+      $message = t('Uh-oh! Could not save bookmark. Try again later');
+    }
+
+    return drupal_json(array('status' => $status, 'message' => $message));
+  }
+
+}
+
+/**
+ * Implementation of hook_form()
+ * This is the bookmark creation form
+ */
+function pinboard_form() {
+
+  $url = isset($_GET['u']) ? check_url($_GET['u']) : '';
+  $title = isset($_GET['t']) ? check_plain($_GET['t']) : '';
+  $description = isset($_GET['d']) ? check_plain($_GET['d']) : '';
+
+  $form['messages'] = array(
+    '#type' => 'markup',
+    '#value' => '<div id="messages"></div>'
+  );
+
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => 'URL',
+    '#default_value' => $url,
+    '#required' => TRUE
+  );
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Title',
+    '#default_value' => $title
+  );
+
+  $form['description'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Short description',
+    '#default_value' => $description,
+    '#description' => 'Short description. Up to 220 characters.'
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Bookmark')
+  );
+
+  return $form;
+}
+
+/**
+ *  Implementation of hook_validate()
+ */
+function pinboard_form_validate($form, &$form_state) {
+  $url = $form_state['values']['url'];
+
+  if (function_exists('idn_to_ascii')) {
+    $url = idn_to_ascii($url);
+  }
+  if (!valid_url($url, TRUE) ) {
+    form_set_error('url', 'Please enter a full, valid URL');
+  }
+}
+
+/**
+ *  Handles the bookmark creation
+ *
+ * @todo get title/description via drupal_http_request to $url if empty
+ */
+function pinboard_form_submit($form, &$form_state) {
+  $url = check_url($form_state['values']['url']);
+  $title = check_plain($form_state['values']['title']);
+  $description = check_plain($form_state['values']['description']);
+
+  $bookmark = pinboard_bookmark_prepare($url, $title, $description);
+
+  if (pinboard_save($bookmark)) {
+    $message = 'Bookmark successfully added';
+    $form_state['redirect'] = 'bookmark/ed';
+  }
+  else {
+    $message = 'Uh-oh! Could not save bookmark.';
+  }
+
+  drupal_set_message($message);
 }

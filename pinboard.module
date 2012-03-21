@@ -36,20 +36,22 @@ function pinboard_perm() {
 function pinboard_menu() {
   $items = array();
 
-  $items['bookmark/add'] = array(
+  // bookmarklet
+  $items['bookmark/let'] = array(
     'title' => 'Add bookmark',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('pinboard_form'),
-    'access callback' => 'user_access',
-    'access arguments' => array('create bookmarks')
+    'page callback' => 'pinboard_bookmarklet_page',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'pinboard.pages.inc'
   );
 
-  $items['bookmark/%/delete'] = array(
-    'title' => 'Delete bookmark',
-    'page callback' => 'pinboard_delete',
-    'page arguments' => array(1),
-    'access arguments' => array('delete own bookmarks'),
-    'type' => MENU_CALLBACK
+  $items['bookmark/ed'] = array(
+    'title' => 'Bookmarked',
+    'page callback' => 'pinboard_bookmarklet_page',
+    'page arguments' => array('success'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'pinboard.pages.inc'
   );
 
   // callbacks
@@ -60,6 +62,14 @@ function pinboard_menu() {
     'access callback' => 'pinboard_access',
     'access arguments' => array('create bookmarks', 'delete own bookmarks'),
     'file' => 'pinboard.pages.inc',
+    'type' => MENU_CALLBACK
+  );
+
+  $items['bookmark/%/delete'] = array(
+    'title' => 'Delete bookmark',
+    'page callback' => 'pinboard_delete',
+    'page arguments' => array(1),
+    'access arguments' => array('delete own bookmarks'),
     'type' => MENU_CALLBACK
   );
 
@@ -119,89 +129,6 @@ function pinboard_bookmarks_access($account) {
 }
 
 /**
- * Implementation of hook_form()
- * This is the bookmark creation form
- */
-function pinboard_form() {
-  $form['url'] = array(
-    '#type' => 'textfield',
-    '#title' => 'URL',
-    '#required' => TRUE
-  );
-
-  $form['title'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Title',
-  );
-
-  $form['description'] = array(
-    '#type' => 'textarea',
-    '#title' => 'Short description',
-    '#description' => 'Enter a short description or summary for the bookmarked URL. Up to 250 characters.'
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Bookmark')
-  );
-
-  return $form;
-}
-
-/**
- *  Implementation of hook_validate()
- */
-function pinboard_form_validate($form, &$form_state) {
-  $url = $form_state['values']['url'];
-
-  if (function_exists('idn_to_ascii')) {
-    $url = idn_to_ascii($url);
-  }
-  if (!valid_url($url, TRUE) ) {
-    form_set_error('url', 'Please enter a full, valid URL');
-  }
-}
-
-/**
- *  Handles the bookmark creation
- *
- * @todo get title/description via drupal_http_request to $url if empty
- */
-function pinboard_form_submit($form, &$form_state) {
-  global $user;
-
-  $bookmark = new StdClass;
-  $bookmark->uid    = $user->uid;
-  $bookmark->url    = check_url($form_state['values']['url']);
-  $bookmark->title  = check_plain($form_state['values']['title']);
-  $bookmark->description = check_plain($form_state['values']['description']);
-
-  if (empty($bookmark->title)) {
-    $data = pinboard_url_lookup($bookmark->url);
-
-    if (isset($data['title']) && !empty($data['title'])) {
-      $bookmark->title = $data['title'];
-    }
-    else {
-      $bookmark->title = $bookmark->url;
-    }
-
-    if (empty($bookmark->description) && !empty($data['description'])) {
-      $bookmark->description = $data['description'];
-    }
-  }
-
-  if (pinboard_save($bookmark)) {
-    $message = 'Bookmark successfully added';
-  }
-  else {
-    $message = 'Could not save bookmark.';
-  }
-
-  drupal_set_message($message);
-}
-
-/**
  * Implementation of hook_user()
  * Inject a private/public bookmarks page option
  */
@@ -223,10 +150,30 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
+ * Implementation of hook_preprocess_page()
+ *
+ * Add our template suggestions for the bookmarklet page
+ */
+function pinboard_preprocess_page(&$vars) {
+  if ($_GET['q'] == 'bookmark/let' || $_GET['q'] == 'bookmark/ed') {
+    $vars['template_files'][] = 'page-pinboard-bookmarklet';
+    $vars['pinboard_css'] = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.css', array('absolute' => TRUE));
+  }
+}
+/**
+ * Implementation of hook_theme_registry_alter()
+ * Move pinboard theme path to the top of suggestions
+ */
+function pinboard_theme_registry_alter(&$registry) {
+  $path = drupal_get_path('module', 'pinboard') .'/theme';
+  array_unshift($registry['page']['theme paths'], $path);
+}
+
+/**
  * Implementation of hook_init()
  * Adds the pinboard JavaScript and CSS
  */
 function pinboard_init() {
-  drupal_add_js(drupal_get_path('module', 'pinboard'). '/pinboard.js');
-  drupal_add_css(drupal_get_path('module', 'pinboard'). '/pinboard.css');
+  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
+  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
 }
