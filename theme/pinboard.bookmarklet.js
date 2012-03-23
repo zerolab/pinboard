@@ -16,9 +16,9 @@ var frame_count = 0;
     dd = '';
   }
 
-  dd = dd.length ? dd + '\u2026' : '';
+  dd = dd.length ? encodeURIComponent(dd + '\u2026') : '';
 
-  var t = document.title.replace(/(<[^>]*>)/g,''),
+  var t = encodeURIComponent(document.title.replace(/(<[^>]*>)/g,'')),
       u = encodeURIComponent(location.href);
 
   var o = document.getElementById('pinboard_overlay');
