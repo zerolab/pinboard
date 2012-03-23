@@ -177,3 +177,13 @@ function pinboard_init() {
   drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
   drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
 }
+
+/**
+ * Implementation of hook_views_api()
+ */
+function pinboard_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'pinboard') .'/views',
+  );
+}
