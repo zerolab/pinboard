@@ -153,14 +153,20 @@ function pinboard_bookmarklet_page($status = NULL) {
 
       if (!$user->uid) {
         $user = user_load(array('uid' => $id));
+
+        if (!user_access('create bookmarks', $user)) {
+          print drupal_json(array('status' => 'error', 'message' => t('Uh-oh! You do not have enough privileges. Who would have thought?!')));
+          exit();
+        }
+
       }
       else if ($user->uid != $id) {
-        print drupal_json(array('status' => $status, 'message' => $message));
+        print drupal_json(array('status' => 'error', 'message' => $message));
         exit();
       }
     }
     else {
-      print drupal_json(array('status' => $status, 'message' => $message));
+      print drupal_json(array('status' => 'error', 'message' => $message));
       exit();
     }
 
