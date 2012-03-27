@@ -161,10 +161,38 @@ function pinboard_theme() {
     ),
   );
 }
+
+/**
+ * Preprocess function for theme('pinboard_bookmarklet');
  *
+ * @todo cover the "create bookmarks" permission case
  */
+function template_preprocess_pinboard_bookmarklet(&$vars) {
+
+  // a bit of fallback. Get current user if no user object provided.
+  if (!$vars['user']) {
+    global $user;
+  }
+  else {
+    $user = $vars['user'];
+  }
+
+  $vars['anonymous'] = TRUE;
+
+/*
+  if (!user_access('create bookmarks', $user)) {
+    return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
+  }
+*/
+  if ($user->uid) {
+    $vars['id'] = $id = base_convert($user->uid, 10, 36);
+    $vars['token'] = $token = drupal_get_token("pinboard_user_{$id}");
+    $vars['timestamp'] = $timestamp = time();
+    $vars['hash'] = hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", $user->pass);
+    $vars['anonymous'] = FALSE;
   }
 }
+
 /**
  * Implementation of hook_theme_registry_alter()
  * Move pinboard theme path to the top of suggestions
