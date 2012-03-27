@@ -27,10 +27,11 @@ function pinboard_user_page($account) {
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
   $path = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.js', array('absolute' => TRUE));
+  $path = str_replace('http', 'https', $path);
 
   $return = <<<EOD
-<a href="javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
-<textarea>javascript:(function(){pb=document.createElement('script');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
+<a href="javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea>javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
 EOD;
   if (!$bookmarks || empty($bookmarks)) {
     return $return . 'No bookmarks yet.';
@@ -129,7 +130,7 @@ function pinboard_bookmarklet_page($status = NULL) {
   global $user;
 
   if (!$user->uid) {
-    $return = t('You must be logged in to use this functionality');
+    return t('You must be logged in to use this functionality');
   }
   else if (!user_access('create bookmarks', $user)) {
     return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
