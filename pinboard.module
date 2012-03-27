@@ -162,12 +162,7 @@ function pinboard_theme() {
   );
 }
  *
- * Add our template suggestions for the bookmarklet page
  */
-function pinboard_preprocess_page(&$vars) {
-  if ($_GET['q'] == 'bookmark/let' || $_GET['q'] == 'bookmark/ed') {
-    $vars['template_files'][] = 'page-pinboard-bookmarklet';
-    $vars['pinboard_css'] = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.css', array('absolute' => TRUE));
   }
 }
 /**
