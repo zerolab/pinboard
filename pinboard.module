@@ -169,6 +169,7 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
   }
 
   $vars['anonymous'] = TRUE;
+  $vars['url'] = preg_replace('/http[s]?\:/', '', $GLOBALS['base_url']);
 
 /*
   if (!user_access('create bookmarks', $user)) {
