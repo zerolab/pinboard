@@ -21,7 +21,8 @@
       u = encodeURIComponent(location.href);
 
 <?php if ($anonymous) : ?>
-  window.location.href = '<?php print $url; ?>/user?destination=' + window.location;
+  window.location.href = "<?php print $url; ?>/user?destination=" + window.location
+  + "&token=<?php print md5('pinboard_redirect__'. $_SERVER['HTTP_REFERER']); ?>";
 <?php else : ?>
   var pid = "<?php print $id ?>",
       ts = "<?php print $timestamp; ?>",
