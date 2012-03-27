@@ -35,6 +35,7 @@
     function(data) { console.log(data); },
     function(msg) {
       console.log('error: ' + msg);
+    function() {
       // @todo Add iframe
     }
   );

@@ -180,7 +180,7 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
     $vars['id'] = $id = base_convert($user->uid, 10, 36);
     $vars['token'] = $token = drupal_get_token("pinboard_user_{$id}");
     $vars['timestamp'] = $timestamp = time();
-    $vars['hash'] = base64_encode(hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", $user->pass, TRUE));
+    $vars['hash'] = base64_encode(hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE));
     $vars['anonymous'] = FALSE;
   }
 }
