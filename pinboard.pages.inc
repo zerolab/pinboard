@@ -128,23 +128,24 @@ function pinboard_actions_page($action, $content_id = NULL) {
  */
 function pinboard_bookmarklet_page($status = NULL) {
   drupal_set_header("Access-Control-Allow-Origin: *");
+  drupal_set_header("Access-Control-Allow-Headers: Content-Type");
   drupal_set_header("Content-Type: application/javascript");
 
   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    print theme('pinboard_bookmarklet', $user);
-    exit();
+    print theme('pinboard_bookmarklet');
   }
   else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['js'] == 1) {
+    $status = 'error';
+    $message = t('Uh-oh! Could not save bookmark. Try again later');
     $url = $_POST['u'];
+
     if (function_exists('idn_to_ascii')) {
       $url = idn_to_ascii($url);
     }
 
     if (!valid_url($url, TRUE) ) {
-      $status  = 'error';
-      $message = 'Invalid URL. Please enter a proper, full URL.';
-
-      return drupal_json(array('status' => $status, 'message' => $message));
+      print drupal_json(array('status' => $status, 'message' => $message));
+      exit();
     }
 
     $title = check_plain(strip_tags($_POST['t']));
@@ -154,18 +155,14 @@ function pinboard_bookmarklet_page($status = NULL) {
 
     if (pinboard_save($bookmark)) {
       $status = 'success';
-      $message = url('bookmark/ed', array('absolute' => TRUE));
-
-      drupal_set_message('Bookmark successfully added');
-    }
-    else {
-      $status = 'error';
-      $message = t('Uh-oh! Could not save bookmark. Try again later');
+      $message = t('Bookmarked!');
     }
 
     return drupal_json(array('status' => $status, 'message' => $message));
+    print drupal_json(array('status' => $status, 'message' => $message));
   }
 
+  exit();
 }
 
 /**
