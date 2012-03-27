@@ -150,7 +150,17 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Implementation of hook_preprocess_page()
+ * Implementation of hook_theme()
+ */
+function pinboard_theme() {
+  return array(
+    'pinboard_bookmarklet' => array(
+      'arguments' => array('user' => NULL),
+      'template' => 'pinboard-bookmarklet',
+      'path' => drupal_get_path('module', 'pinboard') .'/theme',
+    ),
+  );
+}
  *
  * Add our template suggestions for the bookmarklet page
  */

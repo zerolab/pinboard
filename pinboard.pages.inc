@@ -26,8 +26,8 @@ function pinboard_user_page($account) {
 
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
-  $path = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.js', array('absolute' => TRUE));
-  $path = str_replace('http', 'https', $path);
+  $path = url('bookmark/let', array('absolute' => TRUE));
+  preg_replace('/http[s]?\:/', '', $path);
 
   $return = <<<EOD
 <a href="javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
@@ -127,23 +127,12 @@ function pinboard_actions_page($action, $content_id = NULL) {
  * Handler for the bookmarklet callback page
  */
 function pinboard_bookmarklet_page($status = NULL) {
-  global $user;
-
-  if (!$user->uid) {
-    return t('You must be logged in to use this functionality');
-  }
-  else if (!user_access('create bookmarks', $user)) {
-    return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
-  }
-
   drupal_set_header("Access-Control-Allow-Origin: *");
+  drupal_set_header("Content-Type: application/javascript");
 
   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if ($status == 'success') {
-      return ' ';
-    }
-
-    return drupal_get_form("pinboard_form");
+    print theme('pinboard_bookmarklet', $user);
+    exit();
   }
   else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['js'] == 1) {
     $url = $_POST['u'];
