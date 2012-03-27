@@ -38,17 +38,8 @@ function pinboard_menu() {
 
   // bookmarklet
   $items['bookmark/let'] = array(
-    'title' => 'Add bookmark',
+    'title' => 'Bookmarklet',
     'page callback' => 'pinboard_bookmarklet_page',
-    'access callback' => TRUE,
-    'type' => MENU_CALLBACK,
-    'file' => 'pinboard.pages.inc'
-  );
-
-  $items['bookmark/ed'] = array(
-    'title' => 'Bookmarked',
-    'page callback' => 'pinboard_bookmarklet_page',
-    'page arguments' => array('success'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'pinboard.pages.inc'
