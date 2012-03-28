@@ -191,17 +191,31 @@ function pinboard_url_lookup($url) {
   );
 
   if ($response->code == '200' && !empty($response->data)) {
-    $doc = new DOMDocument();
-    @$doc->loadHTML($response->data);
 
-    $titles = $doc->getElementsByTagName('title');
-    $data['title'] = check_plain($titles->item(0)->nodeValue);
+    $charset = 'utf-8';
+    if (isset($response->headers['Content-Type'])) {
+      $charset = trim(preg_replace('/.*charset=([^\:].*)/', '$1', $response->headers['Content-Type']));
+    }
 
-    $metas = $doc->getElementsByTagName('meta');
-    for ($i = 0; $i < $metas->length; $i++) {
-      $meta = $metas->item($i);
-      if ($meta->getAttribute('name') == 'description') {
-        $data['description'] = check_plain($meta->getAttribute('content'));
+    if (strtolower($charset) != 'utf-8') {
+      $response->data = drupal_convert_to_utf8($response->data, $charset);
+      $data['title'] = preg_match('/<title>(.*?)<\/title>/i', $response->data, $matches) ? $matches[1] : '';
+      $data['description'] = preg_match('/<meta[\s]+[^>]*?name[\s]?=[\s\"\']?description[\s\"\']?+content[\s]?=[\s\"\']+(.*?)[\"\']+.*?>/i', $response->data, $matches) ? $matches[1] : '';
+    }
+    else {
+      $doc = new DOMDocument('1.0', 'UTF-8');
+      @$doc->loadHTML($response->data, 'UTF-8');
+      $doc->save();
+
+      $titles = $doc->getElementsByTagName('title');
+      $data['title'] = check_plain($titles->item(0)->nodeValue);
+
+      $metas = $doc->getElementsByTagName('meta');
+      for ($i = 0; $i < $metas->length; $i++) {
+        $meta = $metas->item($i);
+        if ($meta->getAttribute('name') == 'description') {
+          $data['description'] = check_plain($meta->getAttribute('content'));
+        }
       }
     }
 
@@ -275,6 +289,8 @@ function pinboard_get_activity($uid, $timestamp) {
  * Fetch data if necessary
  *
  * @return object
+ *
+ * @todo expose a hook to do the url lookup
  */
 function pinboard_bookmark_prepare($url, $title = '', $description = '') {
   global $user;
@@ -285,13 +301,13 @@ function pinboard_bookmark_prepare($url, $title = '', $description = '') {
   $bookmark->title  = $title;
   $bookmark->description = $description;
 
-  if (empty($bookmark->title)) {
+  if (empty($bookmark->title) || empty($description)) {
     $data = pinboard_url_lookup($bookmark->url);
 
     if (isset($data['title']) && !empty($data['title'])) {
       $bookmark->title = $data['title'];
     }
-    else {
+    else if (empty($bookmark->title)) {
       $bookmark->title = $bookmark->url;
     }
 
@@ -299,6 +315,9 @@ function pinboard_bookmark_prepare($url, $title = '', $description = '') {
       $bookmark->description = $data['description'];
     }
   }
+
+  $bookmark->title = html_entity_decode($bookmark->title, ENT_QUOTES, 'UTF-8');
+  $bookmark->description = html_entity_decode($bookmark->description, ENT_QUOTES, 'UTF-8');
 
   return $bookmark;
 }
