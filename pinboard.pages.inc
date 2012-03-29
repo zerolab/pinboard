@@ -13,8 +13,7 @@
  * @return
  *  An html item list with the bookmarks
  *
- * @todo show link to bookmark/add
- * @todo show descriptions
+ * @todo use theme function to display each bookmark
  */
 function pinboard_user_page($account) {
   global $user;
@@ -40,7 +39,7 @@ EOD;
   foreach($bookmarks as $bookmark) {
     $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
 
-    if ($is_owner) {
+    if ($is_owner || pinboard_access('delete any bookmarks')) {
       $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
@@ -279,7 +278,6 @@ function pinboard_form_submit($form, &$form_state) {
 
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
-    $form_state['redirect'] = 'bookmark/ed';
   }
   else {
     $message = 'Uh-oh! Could not save bookmark.';
