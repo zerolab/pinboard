@@ -125,48 +125,69 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
 /**
  * Handler for the bookmarklet callback page
+ *
+ * @todo optimize/simplify the output cases
  */
-function pinboard_bookmarklet_page($status = NULL) {
+function pinboard_bookmarklet_page($mode = NULL) {
   drupal_set_header("Access-Control-Allow-Origin: *");
   drupal_set_header("Access-Control-Allow-Headers: Content-Type");
-  drupal_set_header("Content-Type: application/javascript");
-
 
   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    print theme('pinboard_bookmarklet');
+    if (!$mode) {
+      drupal_set_header("Content-Type: application/javascript");
+      print theme('pinboard_bookmarklet');
+    }
+    else {
+      print "Saved...";
+    }
   }
-  else if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cors'])) {
+
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Some defaults;
     $status = 'error';
     $message = t('Uh-oh! Could not save bookmark. Try again later');
 
-    $token = check_plain($_POST['token']);
-    $hash = check_plain($_POST['cors']);
-    $timestamp = check_plain($_POST['ts']);
-    $uid = check_plain($_POST['pid']);
+    if (isset($_POST['cors']) && !$mode) {
+      $token = check_plain($_POST['token']);
+      $hash = check_plain($_POST['cors']);
+      $timestamp = check_plain($_POST['ts']);
+      $uid = check_plain($_POST['pid']);
+    }
+    else if (isset($_POST['p'])) {
+      parse_str($_POST['p'], $params);
+      $token = check_plain($params['token']);
+      $hash = check_plain($params['cors']);
+      $timestamp = check_plain($params['ts']);
+      $uid = check_plain($params['pid']);
 
-    global $user;
-
+      $_POST['u'] = $params['u'];
+      $_POST['t'] = $params['t'];
+      $_POST['d'] = $params['d'];
+    }
 
     if ($hash == base64_encode(hash_hmac('sha256', "pinboard__{$uid}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE)) ) {
 
+      global $user;
       $id = base_convert($uid, 36, 10);
 
       if (!$user->uid) {
         $user = user_load(array('uid' => $id));
 
         if (!user_access('create bookmarks', $user)) {
-          print drupal_json(array('status' => 'error', 'message' => t('Uh-oh! You do not have enough privileges. Who would have thought?!')));
+          $message = t('Uh-oh! You do not have enough privileges. Who would have thought?!');
+
+          print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
           exit();
         }
 
       }
       else if ($user->uid != $id) {
-        print drupal_json(array('status' => 'error', 'message' => $message));
+        print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
         exit();
       }
     }
     else {
-      print drupal_json(array('status' => 'error', 'message' => $message));
+      print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
       exit();
     }
 
@@ -177,7 +198,7 @@ function pinboard_bookmarklet_page($status = NULL) {
     }
 
     if (!valid_url($url, TRUE) ) {
-      print drupal_json(array('status' => $status, 'message' => $message));
+      print $mode ? $message : drupal_json(array('status' => $status, 'message' => $message));
       exit();
     }
 
@@ -191,7 +212,7 @@ function pinboard_bookmarklet_page($status = NULL) {
       $message = t('Saved!');
     }
 
-    print drupal_json(array('status' => $status, 'message' => $message));
+    print $mode ? $message : drupal_json(array('status' => $status, 'message' => $message));
   }
   exit();
 }
