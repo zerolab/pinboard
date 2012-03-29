@@ -26,8 +26,8 @@ function pinboard_user_page($account) {
 
   $bookmarks = pinboard_load_bookmarks($account->uid);
 
-  $path = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.js', array('absolute' => TRUE));
-  $path = str_replace('http', 'https', $path);
+  $path = url('bookmark/let', array('absolute' => TRUE));
+  preg_replace('/http[s]?\:/', '', $path);
 
   $return = <<<EOD
 <a href="javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
@@ -125,37 +125,81 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
 /**
  * Handler for the bookmarklet callback page
+ *
+ * @todo optimize/simplify the output cases
  */
-function pinboard_bookmarklet_page($status = NULL) {
-  global $user;
-
-  if (!$user->uid) {
-    return t('You must be logged in to use this functionality');
-  }
-  else if (!user_access('create bookmarks', $user)) {
-    return t('Uh-oh! You do not have enough privileges. Who would have thought?!');
-  }
-
+function pinboard_bookmarklet_page($mode = NULL) {
   drupal_set_header("Access-Control-Allow-Origin: *");
+  drupal_set_header("Access-Control-Allow-Headers: Content-Type");
 
   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if ($status == 'success') {
-      return ' ';
+    if (!$mode) {
+      drupal_set_header("Content-Type: application/javascript");
+      print theme('pinboard_bookmarklet');
+    }
+    else {
+      print "Saved...";
+    }
+  }
+
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Some defaults;
+    $status = 'error';
+    $message = t('Uh-oh! Could not save bookmark. Try again later');
+
+    if (isset($_POST['cors']) && !$mode) {
+      $token = check_plain($_POST['token']);
+      $hash = check_plain($_POST['cors']);
+      $timestamp = check_plain($_POST['ts']);
+      $uid = check_plain($_POST['pid']);
+    }
+    else if (isset($_POST['p'])) {
+      parse_str($_POST['p'], $params);
+      $token = check_plain($params['token']);
+      $hash = check_plain($params['cors']);
+      $timestamp = check_plain($params['ts']);
+      $uid = check_plain($params['pid']);
+
+      $_POST['u'] = $params['u'];
+      $_POST['t'] = $params['t'];
+      $_POST['d'] = $params['d'];
     }
 
-    return drupal_get_form("pinboard_form");
-  }
-  else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['js'] == 1) {
+    if ($hash == base64_encode(hash_hmac('sha256', "pinboard__{$uid}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE)) ) {
+
+      global $user;
+      $id = base_convert($uid, 36, 10);
+
+      if (!$user->uid) {
+        $user = user_load(array('uid' => $id));
+
+        if (!user_access('create bookmarks', $user)) {
+          $message = t('Uh-oh! You do not have enough privileges. Who would have thought?!');
+
+          print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
+          exit();
+        }
+
+      }
+      else if ($user->uid != $id) {
+        print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
+        exit();
+      }
+    }
+    else {
+      print $mode ? $message : drupal_json(array('status' => 'error', 'message' => $message));
+      exit();
+    }
+
     $url = $_POST['u'];
+
     if (function_exists('idn_to_ascii')) {
       $url = idn_to_ascii($url);
     }
 
     if (!valid_url($url, TRUE) ) {
-      $status  = 'error';
-      $message = 'Invalid URL. Please enter a proper, full URL.';
-
-      return drupal_json(array('status' => $status, 'message' => $message));
+      print $mode ? $message : drupal_json(array('status' => $status, 'message' => $message));
+      exit();
     }
 
     $title = check_plain(strip_tags($_POST['t']));
@@ -165,18 +209,12 @@ function pinboard_bookmarklet_page($status = NULL) {
 
     if (pinboard_save($bookmark)) {
       $status = 'success';
-      $message = url('bookmark/ed', array('absolute' => TRUE));
-
-      drupal_set_message('Bookmark successfully added');
-    }
-    else {
-      $status = 'error';
-      $message = t('Uh-oh! Could not save bookmark. Try again later');
+      $message = t('Saved!');
     }
 
-    return drupal_json(array('status' => $status, 'message' => $message));
+    print $mode ? $message : drupal_json(array('status' => $status, 'message' => $message));
   }
-
+  exit();
 }
 
 /**

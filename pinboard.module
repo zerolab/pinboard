@@ -38,17 +38,17 @@ function pinboard_menu() {
 
   // bookmarklet
   $items['bookmark/let'] = array(
-    'title' => 'Add bookmark',
+    'title' => 'Bookmarklet',
     'page callback' => 'pinboard_bookmarklet_page',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'pinboard.pages.inc'
   );
 
-  $items['bookmark/ed'] = array(
-    'title' => 'Bookmarked',
+  $items['bookmark/let/post'] = array(
+    'title' => 'Bookmarklet',
     'page callback' => 'pinboard_bookmarklet_page',
-    'page arguments' => array('success'),
+    'page arguments' => array('post'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'pinboard.pages.inc'
@@ -131,6 +131,8 @@ function pinboard_bookmarks_access($account) {
 /**
  * Implementation of hook_user()
  * Inject a private/public bookmarks page option
+ *
+ * @todo detect login from bookmarklet and do proper redirect.
  */
 function pinboard_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'form' && $category == 'account') {
@@ -147,19 +149,65 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 
     return $form;
   }
+  else if ($op == 'login') {
+    if (isset($_GET['token'], $_GET['destination'])) {
+      // redirect only if the token is correct
+      if ($_GET['token'] == md5('pinboard_redirect__'. $_GET['destination'])) {
+
+        // @see drupal_goto()
+        if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update') {
+          module_invoke_all('exit', $url);
+        }
+
+        // Even though session_write_close() is registered as a shutdown function, we
+        // need all session data written to the database before redirecting.
+        session_write_close();
+
+        header('Location: '. check_url($_GET['destination']), TRUE, 302);
+        exit();
+      }
+    }
+  }
 }
 
 /**
- * Implementation of hook_preprocess_page()
- *
- * Add our template suggestions for the bookmarklet page
+ * Implementation of hook_theme()
  */
-function pinboard_preprocess_page(&$vars) {
-  if ($_GET['q'] == 'bookmark/let' || $_GET['q'] == 'bookmark/ed') {
-    $vars['template_files'][] = 'page-pinboard-bookmarklet';
-    $vars['pinboard_css'] = url(drupal_get_path('module', 'pinboard') .'/theme/pinboard.bookmarklet.css', array('absolute' => TRUE));
+function pinboard_theme() {
+  return array(
+    'pinboard_bookmarklet' => array(
+      'arguments' => array('user' => NULL),
+      'template' => 'pinboard-bookmarklet',
+      'path' => drupal_get_path('module', 'pinboard') .'/theme',
+    ),
+  );
+}
+
+/**
+ * Preprocess function for theme('pinboard_bookmarklet');
+ */
+function template_preprocess_pinboard_bookmarklet(&$vars) {
+
+  // a bit of fallback. Get current user if no user object provided.
+  if (!$vars['user']) {
+    global $user;
+  }
+  else {
+    $user = $vars['user'];
+  }
+
+  $vars['anonymous'] = TRUE;
+  $vars['url'] = preg_replace('/http[s]?\:/', '', $GLOBALS['base_url']);
+
+  if ($user->uid) {
+    $vars['id'] = $id = base_convert($user->uid, 10, 36);
+    $vars['token'] = $token = drupal_get_token("pinboard_user_{$id}");
+    $vars['timestamp'] = $timestamp = time();
+    $vars['hash'] = base64_encode(hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE));
+    $vars['anonymous'] = FALSE;
   }
 }
+
 /**
  * Implementation of hook_theme_registry_alter()
  * Move pinboard theme path to the top of suggestions
