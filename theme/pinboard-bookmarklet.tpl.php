@@ -5,6 +5,7 @@
  * Dynamically generated for each user.
  */
 ?>
+var pinboard_frame_<?php print $timestamp; ?> = 0;
 
 (function(d){
   var dd;
@@ -27,20 +28,33 @@
   var pid = "<?php print $id ?>",
       ts = "<?php print $timestamp; ?>",
       token = "<?php print $token; ?>",
-      hash = encodeURIComponent("<?php print $hash; ?>");
-
+      hash = encodeURIComponent("<?php print $hash; ?>"),
+      p = 'cors=' + hash + '&pid=' + pid + '&token=' + token + '&ts=' + ts + '&u=' + u + '&t=' + t + '&d=' + dd;
   pinboard_overlay("Saving...");
   pinboard_cors(
     'POST',
     d.location.protocol + '<?php print $url; ?>/bookmark/let',
-    'cors=' + hash + '&pid=' + pid + '&token=' + token + '&ts=' + ts + '&u=' + u + '&t=' + t + '&d=' + dd,
+    p,
     function(data) {
       response = JSON.parse(data);
       pinboard_overlay(response.message, true);
     },
     function() {
-      pinboard_overlay('Unsupported browser. Fallback is work in progress...', true);
-      // @todo Add iframe
+      var i = document.createElement('iframe');
+      i.name = "pinboard_frame";
+      i.setAttribute('id', 'pinboard_frame');
+      i.setAttribute('style', 'border:0; height:1px; left:0; position: absolute; top:0; width:1px; ')
+      i.setAttribute('allowtransparency', 'true');
+      i.setAttribute('onload', 'pinboard_frame_<?php print $timestamp; ?>++;pinboard_frame_load();');
+      document.body.appendChild(i);
+
+      p = p.replace(/'/g, '%27');
+      window.frames["pinboard_frame"].document.write('<html><body>'
+        + '<form id="f" action="' + d.location.protocol + '//<?php print $url; ?>/bookmark/let/post" method="post" accept-charset="utf-8">'
+        + '<input type="hidden" name="p" id="p" value="' + p + '"/>'
+        + '</form>'
+        + "<scr" + "ipt>document.getElementById('f').submit();"
+        + "</scr"+"ipt></body></html>");
     }
   );
 <?php endif; ?>
@@ -56,12 +70,11 @@ function pinboard_cors(method, url, data, success, error) {
     }
     else if (window.XMLHttpRequest) {
       var x = new XMLHttpRequest();
-      if (!x) throw(0);
-      if (x.withCredentials === undefined) error();
+      if (!x || x.withCredentials === undefined) throw(0);
     }
-    else error();
+    else throw(0);
 
-    x.onerror = error;
+    x.onerror = function(){ console.log('onerror'); error(); };
     x.onload = function(){ success(x.responseText); };
     x.open(method, url, true);
     x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -88,5 +101,16 @@ function pinboard_overlay(text, hide) {
 
   if (hide) {
     setTimeout(function(){o.style.display = "none";}, 800);
+  }
+}
+
+function pinboard_frame_load() {
+  if (pinboard_frame_<?php print $timestamp; ?> == 2) {
+    pinboard_overlay('Saved!', true);
+
+    var i = document.getElementById("pinboard_frame");
+    if (i) {
+      i.parentNode.removeChild(i);
+    }
   }
 }
