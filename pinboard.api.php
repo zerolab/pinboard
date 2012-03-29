@@ -32,3 +32,30 @@ function hook_pinboard_node_bookmark(&$bookmark, $node) {
   $bookmark->title  = $node->title;
   $bookmark->description = strip_tags($node->teaser);
 }
+
+
+/**
+ * Example implementation of hook_pinboard_url_description()
+ *
+ * Override the description for external URLs.
+ * While you can change anything, it is recommended to change only title/description
+ *
+ * @param $data
+ *    An cacheable array with the lookup information
+ *    Available keys:
+ *    - code      = response code
+ *    - headers   = response headers
+ *    - url       = the requested url
+ *    - title     = fetched page title
+ *    - description = fetched page description
+ *
+ * @return modified $data
+ */
+function hook_pinboard_url_lookup($data) {
+  $response = drupal_http_request($url);
+
+  // ...
+
+  $data['title'] = $title;
+  $data['description'] = $description;
+}
