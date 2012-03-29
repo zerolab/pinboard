@@ -188,7 +188,7 @@ function pinboard_bookmarklet_page($status = NULL) {
 
     if (pinboard_save($bookmark)) {
       $status = 'success';
-      $message = t('Bookmarked!');
+      $message = t('Saved!');
     }
 
     print drupal_json(array('status' => $status, 'message' => $message));

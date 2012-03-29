@@ -79,7 +79,7 @@ function pinboard_overlay(text, hide) {
   if (!o || typeof(o) === "undefined") {
     var o = document.createElement('div');
     o.id = "pinboard_overlay";
-    o.setAttribute("style", "background-color:rgba(0,0,0, 0.7); color:#fff; font-size:48px;position:fixed; z-index:1024; width:100%; height:100%; top:0; left:0;transition:display 0s linear 1s;");
+    o.setAttribute("style", "background-color:rgba(0,0,0, 0.7); color:#fff; font-size:48px;position:fixed; z-index:1024; width:100%; height:100%; top:0; left:0;-webkit-transition:all 0.4s ease; -moz-transition:all 0.4s ease; transition:all 0.4s ease;");
     document.body.appendChild(o);
   }
 
