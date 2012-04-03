@@ -40,13 +40,13 @@ var pinboard_frame_<?php print $timestamp; ?> = 0;
       pinboard_overlay(response.message, true);
     },
     function() {
-      var i = document.createElement('iframe');
+      var i = d.createElement('iframe');
       i.name = "pinboard_frame";
       i.setAttribute('id', 'pinboard_frame');
       i.setAttribute('style', 'border:0; height:1px; left:0; position: absolute; top:0; width:1px; ')
       i.setAttribute('allowtransparency', 'true');
       i.setAttribute('onload', 'pinboard_frame_<?php print $timestamp; ?>++;pinboard_frame_load();');
-      document.body.appendChild(i);
+      d.body.appendChild(i);
 
       p = p.replace(/'/g, '%27');
       window.frames["pinboard_frame"].document.write('<html><body>'
@@ -58,7 +58,7 @@ var pinboard_frame_<?php print $timestamp; ?> = 0;
     }
   );
 <?php endif; ?>
-})(document);
+}(document));
 
 function pinboard_cors(method, url, data, success, error) {
   try {
