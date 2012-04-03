@@ -18,6 +18,8 @@
 function pinboard_user_page($account) {
   global $user;
   $is_owner = $user->uid == $account->uid;
+  $name = check_plain($account->name);
+  drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." bookmarks");
 
   if (!pinboard_bookmarks_access($account)) {
     return 'This user has no public bookmarks.';
