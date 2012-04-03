@@ -87,20 +87,22 @@ function pinboard_cors(method, url, data, success, error) {
 
 function pinboard_overlay(text, hide) {
 
-  var o = document.getElementById('pinboard_overlay');
+  var d = document,
+      o = d.getElementById('pinboard_overlay');
 
   if (!o || typeof(o) === "undefined") {
-    var o = document.createElement('div');
+    var o = d.createElement('div');
     o.id = "pinboard_overlay";
-    o.setAttribute("style", "background-color:rgba(0,0,0, 0.7); color:#fff; font-size:48px;position:fixed; z-index:1024; width:100%; height:100%; top:0; left:0;-webkit-transition:all 0.4s ease; -moz-transition:all 0.4s ease; transition:all 0.4s ease;");
-    document.body.appendChild(o);
+    o.setAttribute("style", "background:#1f1f1f; color:#fff; font-size:24px!important; padding:16px 32px; position:fixed; text-align:center; top:-9999px; z-index:10240; width:100%; left:0;"
+      + "-webkit-transition:all .5s ease;-moz-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease;");
+    d.body.appendChild(o);
   }
 
   o.innerHTML = text;
-  o.style.display = "block";
+  o.style.top = "0";
 
   if (hide) {
-    setTimeout(function(){o.style.display = "none";}, 800);
+    setTimeout(function(){o.style.top = "-9999px"; }, 800);
   }
 }
 
