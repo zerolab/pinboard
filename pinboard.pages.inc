@@ -18,6 +18,8 @@
 function pinboard_user_page($account) {
   global $user;
   $is_owner = $user->uid == $account->uid;
+  $can_delete = ($is_owner || pinboard_access('delete any bookmarks'));
+
   $name = check_plain($account->name);
   drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." bookmarks");
 
@@ -41,7 +43,7 @@ EOD;
   foreach($bookmarks as $bookmark) {
     $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
 
-    if ($is_owner || pinboard_access('delete any bookmarks')) {
+    if ($can_delete) {
       $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
@@ -58,6 +60,12 @@ EOD;
   }
 
   return $bookmarklet . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
+  if ($can_delete) {
+    $data = unserialize($account->data);
+    $pinboard_visibility = 'pinboard-'. $data['pinboard_visibility'];
+  }
+
+  return theme_item_list($list, NULL, 'ul', array('class' => 'pinboard-list '. $pinboard_visibility)). $pinboard_empty;
 }
 
 /**
