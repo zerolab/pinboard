@@ -16,6 +16,10 @@
   background-image:url(loading.gif);
 }
 
+#pinboard-help {
+  margin:0 0 1em;
+}
+
 #pinboard-bookmarklet {
   background:#1f1f1f;
   color:#fff;

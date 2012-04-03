@@ -67,7 +67,9 @@ EOD;
     $pinboard_visibility = 'pinboard-'. $data['pinboard_visibility'];
   }
 
-  return theme_item_list($list, NULL, 'ul', array('class' => 'pinboard-list '. $pinboard_visibility)). $pinboard_empty;
+  return '<div id="pinboard-help">'. $bookmarklet .'</div>'
+    . theme_item_list($list, NULL, 'ul', array('class' => 'pinboard-list '. $pinboard_visibility))
+    . $pinboard_empty;
 }
 
 /**

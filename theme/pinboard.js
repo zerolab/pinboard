@@ -32,6 +32,7 @@ Drupal.behaviors.pinboard = function(context) {
               console.log(ancestor, ancestor.children().length);
               if (ancestor.hasClass("pinboard-list") && ancestor.children().length === 0) {
                 $("#pinboard-empty").removeClass("pinboard-hide");
+                $('#pinboard-help').remove();
                 ancestor.remove();
               }
             }
