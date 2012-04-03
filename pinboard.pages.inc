@@ -28,12 +28,12 @@ function pinboard_user_page($account) {
   $path = url('bookmark/let', array('absolute' => TRUE));
   preg_replace('/http[s]?\:/', '', $path);
 
-  $return = <<<EOD
+  $bookmarklet = <<<EOD
 <a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
-<textarea>javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
+<textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
 EOD;
   if (!$bookmarks || empty($bookmarks)) {
-    return $return . 'No bookmarks yet.';
+    return "You have no bookmarked items. Why not use the $bookmarklet to get you started?";
   }
 
   foreach($bookmarks as $bookmark) {
@@ -55,7 +55,7 @@ EOD;
     $list[] = $item;
   }
 
-  return $return . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
+  return $bookmarklet . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
 }
 
 /**
