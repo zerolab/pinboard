@@ -26,7 +26,14 @@ Drupal.behaviors.pinboard = function(context) {
         success: function(data) {
           if (data.status) {
             if (data.status == 'remove') {
-              element.parent().hide('slow').remove();
+              var ancestor = element.parent().parent();
+              element.parent().hide().remove();
+
+              console.log(ancestor, ancestor.children().length);
+              if (ancestor.hasClass("pinboard-list") && ancestor.children().length === 0) {
+                $("#pinboard-empty").removeClass("pinboard-hide");
+                ancestor.remove();
+              }
             }
             else {
               element

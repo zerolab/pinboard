@@ -42,6 +42,7 @@ EOD;
   }
 
   $pinboard_empty = "<p id=\"pinboard-empty\" class=\"pinboard-hide\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
+
   foreach($bookmarks as $bookmark) {
     $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
 
