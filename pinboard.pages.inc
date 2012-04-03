@@ -29,8 +29,8 @@ function pinboard_user_page($account) {
   preg_replace('/http[s]?\:/', '', $path);
 
   $return = <<<EOD
-<a href="javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
-<textarea>javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
+<a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea>javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
 EOD;
   if (!$bookmarks || empty($bookmarks)) {
     return $return . 'No bookmarks yet.';
