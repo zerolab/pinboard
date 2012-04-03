@@ -36,10 +36,12 @@ function pinboard_user_page($account) {
 <a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
 <textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
 EOD;
+
   if (!$bookmarks || empty($bookmarks)) {
-    return "You have no bookmarked items. Why not use the $bookmarklet to get you started?";
+    return "<p id=\"pinboard-empty\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
   }
 
+  $pinboard_empty = "<p id=\"pinboard-empty\" class=\"pinboard-hide\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
   foreach($bookmarks as $bookmark) {
     $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
 
@@ -59,7 +61,6 @@ EOD;
     $list[] = $item;
   }
 
-  return $bookmarklet . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
   if ($can_delete) {
     $data = unserialize($account->data);
     $pinboard_visibility = 'pinboard-'. $data['pinboard_visibility'];
