@@ -11,12 +11,12 @@ system.
 
 ## Roadmap
 
-* URL info caching a la Dave Reid's [Bookmark](http://drupal.org/project/bookmark)
-  module
-* Bookmarklet
-* Provide API
+- Add tokens to ajax add/remove node urls
+- Use the theme layer and templates for the bookmarked items
 
 ## Credit
 
 This module was created by [Dan Braghis](http://zerolab.org) for internal use at
 [The Browser](http://thebrowser.com "Writing Worth Reading")
+
+Inspired by Dave Reid's [Bookmark](http://drupal.org/project/bookmark)
