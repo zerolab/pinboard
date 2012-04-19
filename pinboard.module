@@ -246,3 +246,30 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
     $vars['anonymous'] = FALSE;
   }
 }
+
+/**
+ * Preprocess function for theme('pinboard_bookmark')
+ */
+function pinboard_preprocess_pinboard_bookmark(&$variables) {
+  $bookmark = $variables['bookmark'];
+
+  if (!is_object($bookmark)) {
+    return;
+  }
+
+  $variables['title'] = $bookmark->title;
+  $variables['url'] = $bookmark->url;
+  $variables['link'] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
+  $variables['description'] = $bookmark->description;
+
+  $parsed_url = parse_url($bookmark->url);
+  $variables['host'] = $parsed_url ? $parsed_url['scheme'] .'://'. $parsed_url['host'] : $bookmark->url;
+
+  $variables['template files'] = array('bookmark');
+
+  if ($bookmark->nid && ($node = node_load($bookmark->nid))) {
+    $variables['node'] = $node;
+
+    $variables['template files'][] = 'bookmark-'. $node->type;
+  }
+}
