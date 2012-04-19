@@ -206,9 +206,9 @@ function pinboard_theme($existing, $type, $theme, $path) {
     ),
     'pinboard_bookmark' => array(
       'arguments' => array('bookmark' => NULL),
-      'template'  => 'bookmark',
+      'template'  => 'pinboard-bookmark',
       'path'      => $path .'/theme',
-      'pattern'   => 'bookmark__'
+      'pattern'   => 'pinboard_bookmark__'
     ),
     'pinboard_bookmarks' => array(
       'arguments' => array('items' => NULL, 'can_delete' => FALSE),
@@ -255,7 +255,7 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
 /**
  *
  */
-function pinboard_preprocess_pinboard_bookmarks(&$variables) {
+function template_preprocess_pinboard_bookmarks(&$variables) {
   $bookmarks = array();
 
   $path = url('bookmark/let', array('absolute' => TRUE));
@@ -302,7 +302,7 @@ EOD;
 /**
  * Preprocess function for theme('pinboard_bookmark')
  */
-function pinboard_preprocess_pinboard_bookmark(&$variables) {
+function template_preprocess_pinboard_bookmark(&$variables) {
   $bookmark = $variables['bookmark'];
 
   if (!is_object($bookmark)) {
@@ -317,13 +317,14 @@ function pinboard_preprocess_pinboard_bookmark(&$variables) {
   $parsed_url = parse_url($bookmark->url);
   $variables['host'] = $parsed_url ? $parsed_url['scheme'] .'://'. $parsed_url['host'] : $bookmark->url;
 
-  $variables['template files'] = array('bookmark');
   $variables['classes'] = 'pinboard-bookmark';
 
   if ($bookmark->nid && ($node = node_load($bookmark->nid))) {
     $variables['node'] = $node;
 
     $variables['classes'] .= ' pinboard-bookmark-'. $node->type;
-    $variables['template files'][] = 'bookmark-'. $node->type;
+    $variables['template_files'][] = 'pinboard-bookmark-'. $node->type;
   }
+
+  //dpm($variables);
 }
