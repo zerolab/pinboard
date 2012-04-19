@@ -13,8 +13,10 @@
  * $description
  * $host
  * $node
+ *
+ * $classes
  */
-?><div class="bookmark">
+?><div class="<?php print $classes?>">
   <h2><?php print $link ?></h2>
   <p class="meta"><?php print $host ?></p>
   <?php if ($description) : ?>

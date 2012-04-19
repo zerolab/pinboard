@@ -266,10 +266,12 @@ function pinboard_preprocess_pinboard_bookmark(&$variables) {
   $variables['host'] = $parsed_url ? $parsed_url['scheme'] .'://'. $parsed_url['host'] : $bookmark->url;
 
   $variables['template files'] = array('bookmark');
+  $variables['classes'] = 'pinboard-bookmark';
 
   if ($bookmark->nid && ($node = node_load($bookmark->nid))) {
     $variables['node'] = $node;
 
+    $variables['classes'] .= ' pinboard-bookmark-'. $node->type;
     $variables['template files'][] = 'bookmark-'. $node->type;
   }
 }
