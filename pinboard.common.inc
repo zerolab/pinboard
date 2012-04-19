@@ -187,7 +187,9 @@ function pinboard_url_lookup($url) {
   $data = array(
     'code' => $response->code,
     'headers' => $response->headers,
-    'url' => isset($response->redirect_url) ? $response->redirect_url : $url
+    'url' => isset($response->redirect_url) ? $response->redirect_url : $url,
+    'title' => '',
+    'description' => '',
   );
 
   if ($response->code == '200' && !empty($response->data)) {
@@ -205,7 +207,7 @@ function pinboard_url_lookup($url) {
     else {
       $doc = new DOMDocument('1.0', 'UTF-8');
       @$doc->loadHTML($response->data, 'UTF-8');
-      $doc->save();
+      $doc->saveHTML();
 
       $titles = $doc->getElementsByTagName('title');
       $data['title'] = check_plain($titles->item(0)->nodeValue);
@@ -218,12 +220,15 @@ function pinboard_url_lookup($url) {
         }
       }
     }
-
-    cache_set($cache_id, $data, 'cache_pinboard');
-    return $data;
   }
 
-  return;
+  $data = module_invoke_all('pinboard_url_lookup', $data);
+
+  if (!empty($data['description'])) {
+    cache_set($cache_id, $data, 'cache_pinboard');
+  }
+
+  return $data;
 }
 
 /**

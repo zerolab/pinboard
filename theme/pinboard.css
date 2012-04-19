@@ -16,6 +16,10 @@
   background-image:url(loading.gif);
 }
 
+#pinboard-help {
+  margin:0 0 1em;
+}
+
 #pinboard-bookmarklet {
   background:#1f1f1f;
   color:#fff;
@@ -26,4 +30,27 @@
   -webkit-border-radius: 4px;
      -moz-border-radius: 4px;
           border-radius: 4px;
+}
+
+#pinboard-bookmarklet-code {
+  border:1px solid #bababa;
+  display:none;
+}
+
+.pinboard-hide {
+  display:none;
+}
+
+@media only screen and (max-device-width: 480px),
+       only screen and (max-device-width: 1024px) {
+
+  #pinboard-bookmarklet {
+    display:none;
+  }
+
+  #pinboard-bookmarklet-code {
+    box-sizing: border-box;
+    display: block;
+    width:100%;
+  }
 }

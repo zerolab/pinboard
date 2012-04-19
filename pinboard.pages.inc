@@ -13,12 +13,15 @@
  * @return
  *  An html item list with the bookmarks
  *
- * @todo show link to bookmark/add
- * @todo show descriptions
+ * @todo use theme function to display each bookmark
  */
 function pinboard_user_page($account) {
   global $user;
   $is_owner = $user->uid == $account->uid;
+  $can_delete = ($is_owner || pinboard_access('delete any bookmarks'));
+
+  $name = check_plain($account->name);
+  drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." bookmarks");
 
   if (!pinboard_bookmarks_access($account)) {
     return 'This user has no public bookmarks.';
@@ -29,18 +32,21 @@ function pinboard_user_page($account) {
   $path = url('bookmark/let', array('absolute' => TRUE));
   preg_replace('/http[s]?\:/', '', $path);
 
-  $return = <<<EOD
-<a href="javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();" id="pinboard-bookmarklet">Bookmarklet</a>
-<textarea>javascript:(function(){pb=document.createElement('scri'+'pt');pb.type='text/javascript';pb.src='$path?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(pb);})();</textarea>
+  $bookmarklet = <<<EOD
+<a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
 EOD;
+
   if (!$bookmarks || empty($bookmarks)) {
-    return $return . 'No bookmarks yet.';
+    return "<p id=\"pinboard-empty\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
   }
+
+  $pinboard_empty = "<p id=\"pinboard-empty\" class=\"pinboard-hide\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
 
   foreach($bookmarks as $bookmark) {
     $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
 
-    if ($is_owner) {
+    if ($can_delete) {
       $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
@@ -56,7 +62,14 @@ EOD;
     $list[] = $item;
   }
 
-  return $return . theme_item_list($list, 'Bookmarks', 'ul', array('class' => 'pinboard-list pinboard-'. $account_data['pinboard_visibility']));
+  if ($can_delete) {
+    $data = unserialize($account->data);
+    $pinboard_visibility = 'pinboard-'. $data['pinboard_visibility'];
+  }
+
+  return '<div id="pinboard-help">'. $bookmarklet .'</div>'
+    . theme_item_list($list, NULL, 'ul', array('class' => 'pinboard-list '. $pinboard_visibility))
+    . $pinboard_empty;
 }
 
 /**
@@ -279,7 +292,6 @@ function pinboard_form_submit($form, &$form_state) {
 
   if (pinboard_save($bookmark)) {
     $message = 'Bookmark successfully added';
-    $form_state['redirect'] = 'bookmark/ed';
   }
   else {
     $message = 'Uh-oh! Could not save bookmark.';
