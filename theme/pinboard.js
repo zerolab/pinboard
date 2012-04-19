@@ -40,7 +40,7 @@ Drupal.behaviors.pinboard = function(context) {
               element
                 .attr('href', data.link)
                 .html(data.text)
-                .removeClass('pinboard-bookmark')
+                .removeClass('pinboard-bookmarked')
                 .addClass(data.status);
             }
           }
