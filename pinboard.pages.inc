@@ -44,7 +44,7 @@ EOD;
   $pinboard_empty = "<p id=\"pinboard-empty\" class=\"pinboard-hide\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
 
   foreach($bookmarks as $bookmark) {
-    $item = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
+    $item = theme('pinboard_bookmark', $bookmark);
 
     if ($can_delete) {
       $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
@@ -53,10 +53,6 @@ EOD;
         'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
         )
       );
-    }
-
-    if (!empty($bookmark->description)) {
-      $item .= '<p>'. $bookmark->description .'</p>';
     }
 
     $list[] = $item;
@@ -103,7 +99,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
       $message = t('Bookmark successfully added');
       $link = 'bookmark/delete/'. $bid;
       $text = 'Remove bookmark';
-      $status = 'pinboard-bookmark';
+      $status = 'pinboard-bookmarked';
     }
     else {
       $error = t('Could not add bookmark.');

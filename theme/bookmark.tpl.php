@@ -20,6 +20,6 @@
   <h2><?php print $link ?></h2>
   <p class="meta"><?php print $host ?></p>
   <?php if ($description) : ?>
-  <p><?php $description ?></p>
+  <p><?php print $description ?></p>
   <?php endif; ?>
 </div>
