@@ -179,12 +179,19 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
  * Implementation of hook_theme()
  */
 function pinboard_theme() {
+  $path = drupal_get_path('module', 'pinboard') .'/theme';
   return array(
     'pinboard_bookmarklet' => array(
       'arguments' => array('user' => NULL),
-      'template' => 'pinboard-bookmarklet',
-      'path' => drupal_get_path('module', 'pinboard') .'/theme',
+      'template'  => 'pinboard-bookmarklet',
+      'path'      => $path,
     ),
+    'pinboard_bookmark' => array(
+      'arguments' => array('bookmark' => NULL),
+      'template'  => 'bookmark',
+      'path'      => $path,
+      'pattern'   => 'bookmark__'
+    )
   );
 }
 
