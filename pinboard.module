@@ -18,6 +18,25 @@ function pinboard_load_common_includes() {
 pinboard_load_common_includes();
 
 /**
+ * Implementation of hook_init()
+ * Adds the pinboard JavaScript and CSS
+ */
+function pinboard_init() {
+  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
+  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
+}
+
+/**
+ * Implementation of hook_views_api()
+ */
+function pinboard_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'pinboard') .'/views',
+  );
+}
+
+/**
  *  Implementation of hook_perm()
  */
 function pinboard_perm() {
@@ -178,14 +197,34 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 /**
  * Implementation of hook_theme()
  */
-function pinboard_theme() {
+function pinboard_theme($existing, $type, $theme, $path) {
   return array(
     'pinboard_bookmarklet' => array(
       'arguments' => array('user' => NULL),
-      'template' => 'pinboard-bookmarklet',
-      'path' => drupal_get_path('module', 'pinboard') .'/theme',
+      'template'  => 'pinboard-bookmarklet',
+      'path'      => $path .'/theme',
     ),
+    'pinboard_bookmark' => array(
+      'arguments' => array('bookmark' => NULL),
+      'template'  => 'pinboard-bookmark',
+      'path'      => $path .'/theme',
+      'pattern'   => 'pinboard_bookmark__'
+    ),
+    'pinboard_bookmarks' => array(
+      'arguments' => array('items' => NULL, 'can_delete' => FALSE),
+      'template'  => 'pinboard-bookmarks',
+      'path'      => $path .'/theme',
+    )
   );
+}
+
+/**
+ * Implementation of hook_theme_registry_alter()
+ * Move pinboard theme path to the top of suggestions
+ */
+function pinboard_theme_registry_alter(&$registry) {
+  $path = drupal_get_path('module', 'pinboard') .'/theme';
+  array_unshift($registry['page']['theme paths'], $path);
 }
 
 /**
@@ -214,29 +253,78 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
 }
 
 /**
- * Implementation of hook_theme_registry_alter()
- * Move pinboard theme path to the top of suggestions
+ *
  */
-function pinboard_theme_registry_alter(&$registry) {
-  $path = drupal_get_path('module', 'pinboard') .'/theme';
-  array_unshift($registry['page']['theme paths'], $path);
+function template_preprocess_pinboard_bookmarks(&$variables) {
+  $bookmarks = array();
+
+  $path = url('bookmark/let', array('absolute' => TRUE));
+  $path = preg_replace('/http[s]?\:/', '', $path);
+
+  $variables['bookmarklet'] = $bookmarklet = <<<EOD
+<a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
+EOD;
+
+  if (!count($variables['items'])) {
+    return;
+  }
+
+  $can_delete = $variables['can_delete'];
+
+  foreach($variables['items'] as $bookmark) {
+    $item = theme('pinboard_bookmark', $bookmark);
+
+    if ($can_delete) {
+      $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
+        'absolute' => TRUE,
+        'html' => TRUE,
+        'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
+        )
+      );
+    }
+
+    $bookmarks[] = $item;
+  }
+
+  $variables['bookmarks'] = $bookmarks;
+  $variables['classes'] = 'pinboard-list';
+
+  if ($can_delete) {
+    $data = unserialize($account->data);
+    $variables['classes'] .= ' pinboard-'. $data['pinboard_visibility'];
+  }
+
+  // Paginated result FTW!
+  $variables['pager'] = theme('pager');
 }
 
 /**
- * Implementation of hook_init()
- * Adds the pinboard JavaScript and CSS
+ * Preprocess function for theme('pinboard_bookmark')
  */
-function pinboard_init() {
-  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
-  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
-}
+function template_preprocess_pinboard_bookmark(&$variables) {
+  $bookmark = $variables['bookmark'];
 
-/**
- * Implementation of hook_views_api()
- */
-function pinboard_views_api() {
-  return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'pinboard') .'/views',
-  );
+  if (!is_object($bookmark)) {
+    return;
+  }
+
+  $variables['title'] = $bookmark->title;
+  $variables['url'] = $bookmark->url;
+  $variables['link'] = l($bookmark->title, $bookmark->url, array('absolute' => TRUE) );
+  $variables['description'] = $bookmark->description;
+
+  $parsed_url = parse_url($bookmark->url);
+  $variables['host'] = $parsed_url ? $parsed_url['scheme'] .'://'. $parsed_url['host'] : $bookmark->url;
+
+  $variables['classes'] = 'pinboard-bookmark';
+
+  if ($bookmark->nid && ($node = node_load($bookmark->nid))) {
+    $variables['node'] = $node;
+
+    $variables['classes'] .= ' pinboard-bookmark-'. $node->type;
+    $variables['template_files'][] = 'pinboard-bookmark-'. $node->type;
+  }
+
+  //dpm($variables);
 }

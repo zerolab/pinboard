@@ -136,7 +136,7 @@ function pinboard_create_link($nid) {
  * @return
  *    An array with bookmark details
  */
-function pinboard_load_bookmarks($uid = 0, $bids = NULL) {
+function pinboard_load_bookmarks($uid = 0, $bids = NULL, $paged = FALSE) {
 
   if (!$uid || !is_numeric($uid)) {
     return;
@@ -154,9 +154,14 @@ function pinboard_load_bookmarks($uid = 0, $bids = NULL) {
   }
 
   $query .= " ORDER BY created DESC";
-  $result = db_query($query);
+  if (!$paged) {
+    $results = db_query($query);
+  }
+  else {
+    $results = pager_query($query, 10, 0, NULL);
+  }
 
-  while ($bookmark = db_fetch_object($result)) {
+  while ($bookmark = db_fetch_object($results)) {
     $bookmarks[] = $bookmark;
   }
 
