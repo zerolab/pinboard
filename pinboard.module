@@ -18,6 +18,25 @@ function pinboard_load_common_includes() {
 pinboard_load_common_includes();
 
 /**
+ * Implementation of hook_init()
+ * Adds the pinboard JavaScript and CSS
+ */
+function pinboard_init() {
+  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
+  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
+}
+
+/**
+ * Implementation of hook_views_api()
+ */
+function pinboard_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'pinboard') .'/views',
+  );
+}
+
+/**
  *  Implementation of hook_perm()
  */
 function pinboard_perm() {
@@ -196,6 +215,15 @@ function pinboard_theme() {
 }
 
 /**
+ * Implementation of hook_theme_registry_alter()
+ * Move pinboard theme path to the top of suggestions
+ */
+function pinboard_theme_registry_alter(&$registry) {
+  $path = drupal_get_path('module', 'pinboard') .'/theme';
+  array_unshift($registry['page']['theme paths'], $path);
+}
+
+/**
  * Preprocess function for theme('pinboard_bookmarklet');
  */
 function template_preprocess_pinboard_bookmarklet(&$vars) {
@@ -218,32 +246,4 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
     $vars['hash'] = base64_encode(hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE));
     $vars['anonymous'] = FALSE;
   }
-}
-
-/**
- * Implementation of hook_theme_registry_alter()
- * Move pinboard theme path to the top of suggestions
- */
-function pinboard_theme_registry_alter(&$registry) {
-  $path = drupal_get_path('module', 'pinboard') .'/theme';
-  array_unshift($registry['page']['theme paths'], $path);
-}
-
-/**
- * Implementation of hook_init()
- * Adds the pinboard JavaScript and CSS
- */
-function pinboard_init() {
-  drupal_add_js(drupal_get_path('module', 'pinboard'). '/theme/pinboard.js');
-  drupal_add_css(drupal_get_path('module', 'pinboard'). '/theme/pinboard.css');
-}
-
-/**
- * Implementation of hook_views_api()
- */
-function pinboard_views_api() {
-  return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'pinboard') .'/views',
-  );
 }
