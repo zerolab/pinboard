@@ -197,18 +197,17 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
 /**
  * Implementation of hook_theme()
  */
-function pinboard_theme() {
-  $path = drupal_get_path('module', 'pinboard') .'/theme';
+function pinboard_theme($existing, $type, $theme, $path) {
   return array(
     'pinboard_bookmarklet' => array(
       'arguments' => array('user' => NULL),
       'template'  => 'pinboard-bookmarklet',
-      'path'      => $path,
+      'path'      => $path .'/theme',
     ),
     'pinboard_bookmark' => array(
       'arguments' => array('bookmark' => NULL),
       'template'  => 'bookmark',
-      'path'      => $path,
+      'path'      => $path .'/theme',
       'pattern'   => 'bookmark__'
     )
   );
