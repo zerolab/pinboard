@@ -209,6 +209,11 @@ function pinboard_theme($existing, $type, $theme, $path) {
       'template'  => 'bookmark',
       'path'      => $path .'/theme',
       'pattern'   => 'bookmark__'
+    ),
+    'pinboard_bookmarks' => array(
+      'arguments' => array('items' => NULL, 'can_delete' => FALSE),
+      'template'  => 'pinboard-bookmarks',
+      'path'      => $path .'/theme',
     )
   );
 }
@@ -245,6 +250,53 @@ function template_preprocess_pinboard_bookmarklet(&$vars) {
     $vars['hash'] = base64_encode(hash_hmac('sha256', "pinboard__{$id}__{$token}__{$timestamp}", "pinboard_user_{$token}", TRUE));
     $vars['anonymous'] = FALSE;
   }
+}
+
+/**
+ *
+ */
+function pinboard_preprocess_pinboard_bookmarks(&$variables) {
+  $bookmarks = array();
+
+  $path = url('bookmark/let', array('absolute' => TRUE));
+  $path = preg_replace('/http[s]?\:/', '', $path);
+
+  $variables['bookmarklet'] = $bookmarklet = <<<EOD
+<a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
+<textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
+EOD;
+
+  if (!count($variables['items'])) {
+    return;
+  }
+
+  $can_delete = $variables['can_delete'];
+
+  foreach($variables['items'] as $bookmark) {
+    $item = theme('pinboard_bookmark', $bookmark);
+
+    if ($can_delete) {
+      $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
+        'absolute' => TRUE,
+        'html' => TRUE,
+        'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
+        )
+      );
+    }
+
+    $bookmarks[] = $item;
+  }
+
+  $variables['bookmarks'] = $bookmarks;
+  $variables['classes'] = 'pinboard-list';
+
+  if ($can_delete) {
+    $data = unserialize($account->data);
+    $variables['classes'] .= ' pinboard-'. $data['pinboard_visibility'];
+  }
+
+  // Paginated result FTW!
+  $variables['pager'] = theme('pager');
 }
 
 /**

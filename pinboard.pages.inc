@@ -27,45 +27,9 @@ function pinboard_user_page($account) {
     return 'This user has no public bookmarks.';
   }
 
-  $bookmarks = pinboard_load_bookmarks($account->uid);
-
-  $path = url('bookmark/let', array('absolute' => TRUE));
-  preg_replace('/http[s]?\:/', '', $path);
-
-  $bookmarklet = <<<EOD
-<a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">Bookmarklet</a>
-<textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
-EOD;
-
-  if (!$bookmarks || empty($bookmarks)) {
-    return "<p id=\"pinboard-empty\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
-  }
-
-  $pinboard_empty = "<p id=\"pinboard-empty\" class=\"pinboard-hide\">You have no bookmarked items. Why not use the $bookmarklet to get you started?</p>";
-
-  foreach($bookmarks as $bookmark) {
-    $item = theme('pinboard_bookmark', $bookmark);
-
-    if ($can_delete) {
-      $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
-        'absolute' => TRUE,
-        'html' => TRUE,
-        'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
-        )
-      );
-    }
-
-    $list[] = $item;
-  }
-
-  if ($can_delete) {
-    $data = unserialize($account->data);
-    $pinboard_visibility = 'pinboard-'. $data['pinboard_visibility'];
-  }
-
-  return '<div id="pinboard-help">'. $bookmarklet .'</div>'
-    . theme_item_list($list, NULL, 'ul', array('class' => 'pinboard-list '. $pinboard_visibility))
-    . $pinboard_empty;
+  // load paged bookmarks
+  $bookmarks = pinboard_load_bookmarks($account->uid, NULL, TRUE);
+  return theme('pinboard_bookmarks', $bookmarks, $can_delete);
 }
 
 /**
