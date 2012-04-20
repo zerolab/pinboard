@@ -52,7 +52,7 @@ EOD;
     '#type' => 'textarea',
     '#title' => t('Help message'),
     '#description' => 'Help users use the module. By default provides the bookmarklet code',
-    '#default_value' => $bookmarklet
+    '#default_value' => variable_get('pinboard_help', $bookmarklet)
   );
 
   $form['pinboard_help_settings']['pinboard_help_block'] = array(
