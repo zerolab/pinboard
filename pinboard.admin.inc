@@ -37,7 +37,7 @@ function pinboard_admin_settings() {
 
   $form['pinboard_help_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Help block'),
+    '#title' => t('Help'),
   );
 
 
