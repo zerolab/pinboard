@@ -25,7 +25,7 @@ function pinboard_user_page($account) {
 
   // must've accessed /bookmarks directly. oops
   if (!$account->uid) {
-    drupal_goto('user');
+    drupal_goto('user', array('destination' => 'bookmarks'));
   }
 
   $name = check_plain($account->name);
