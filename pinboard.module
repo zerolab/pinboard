@@ -55,6 +55,15 @@ function pinboard_perm() {
 function pinboard_menu() {
   $items = array();
 
+  // admin
+  $items['admin/settings/pinboard'] = array(
+    'title' => 'Bookmarks',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pinboard_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'pinboard.admin.inc',
+  );
+
   // bookmarklet
   $items['bookmark/let'] = array(
     'title' => 'Bookmarklet',
