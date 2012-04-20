@@ -17,9 +17,17 @@
  */
 function pinboard_user_page($account) {
 
+  global $user;
   $name = check_plain($account->name);
   $pinboard_title = strtolower(variable_get('pinboard_title', 'bookmarks'));
-  drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." $pinboard_title");
+
+  if ($user->uid == $account->uid) {
+    $title = "My $pinboard_title";
+  }
+  else {
+    $title = "$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." $pinboard_title";
+  }
+  drupal_set_title($title);
 
   if (!pinboard_bookmarks_access($account)) {
     return 'This user has no public bookmarks.';
