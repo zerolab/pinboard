@@ -221,7 +221,7 @@ function pinboard_theme($existing, $type, $theme, $path) {
       'pattern'   => 'pinboard_bookmark__'
     ),
     'pinboard_bookmarks' => array(
-      'arguments' => array('items' => NULL, 'can_delete' => FALSE),
+      'arguments' => array('items' => NULL, 'account' => FALSE),
       'template'  => 'pinboard-bookmarks',
       'path'      => $path .'/theme',
     )
@@ -281,7 +281,8 @@ EOD;
     return;
   }
 
-  $can_delete = $variables['can_delete'];
+  $variables['is_owner'] = $variables['user']->uid == $variables['account']->uid;
+  $can_delete = $variables['can_delete'] = ($variables['is_owner'] || pinboard_access('delete any bookmarks'));
 
   foreach($variables['items'] as $bookmark) {
     $item = theme('pinboard_bookmark', $bookmark);

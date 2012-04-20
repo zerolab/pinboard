@@ -16,9 +16,6 @@
  * @todo use theme function to display each bookmark
  */
 function pinboard_user_page($account) {
-  global $user;
-  $is_owner = $user->uid == $account->uid;
-  $can_delete = ($is_owner || pinboard_access('delete any bookmarks'));
 
   $name = check_plain($account->name);
   $pinboard_title = strtolower(variable_get('pinboard_title', 'bookmarks'));
@@ -30,7 +27,7 @@ function pinboard_user_page($account) {
 
   // load paged bookmarks
   $bookmarks = pinboard_load_bookmarks($account->uid, NULL, TRUE);
-  return theme('pinboard_bookmarks', $bookmarks, $can_delete);
+  return theme('pinboard_bookmarks', $bookmarks, $account);
 }
 
 /**
