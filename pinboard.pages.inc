@@ -21,7 +21,8 @@ function pinboard_user_page($account) {
   $can_delete = ($is_owner || pinboard_access('delete any bookmarks'));
 
   $name = check_plain($account->name);
-  drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." bookmarks");
+  $pinboard_title = strtolower(variable_get('pinboard_title', 'bookmarks'));
+  drupal_set_title("$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." $pinboard_title");
 
   if (!pinboard_bookmarks_access($account)) {
     return 'This user has no public bookmarks.';
