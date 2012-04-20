@@ -280,11 +280,14 @@ function template_preprocess_pinboard_bookmarks(&$variables) {
 <textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea>
 EOD;
 
+  $variables['pinboard_help'] = variable_get('pinboard_help', NULL);
+  $variables['pinboard_empty'] = TRUE;
+  $variables['is_owner'] = $variables['user']->uid == $variables['account']->uid;
+
   if (!count($variables['items'])) {
     return;
   }
 
-  $variables['is_owner'] = $variables['user']->uid == $variables['account']->uid;
   $can_delete = $variables['can_delete'] = ($variables['is_owner'] || pinboard_access('delete any bookmarks'));
 
   foreach($variables['items'] as $bookmark) {
@@ -303,6 +306,7 @@ EOD;
   }
 
   $variables['bookmarks'] = $bookmarks;
+  $variables['pinboard_empty'] = (!$bookmarks || empty($bookmarks));
   $variables['classes'] = 'pinboard-list';
 
   if ($can_delete) {
