@@ -17,6 +17,11 @@ function pinboard_install() {
  */
 function pinboard_uninstall() {
   drupal_uninstall_schema('pinboard');
+
+  variable_del('pinboard_title');
+  variable_del('pinboard_bookmarklet_text');
+  variable_del('pinboard_help');
+  variable_del('pinboard_help_block');
 }
 
 /**
