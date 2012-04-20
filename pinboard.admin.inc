@@ -48,17 +48,12 @@ function pinboard_admin_settings() {
 You have no bookmarked items. Why not use the <a href="javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());" id="pinboard-bookmarklet">$bookmarklet_text</a>
 <textarea id="pinboard-bookmarklet-code">javascript:(function(){var d=document,s=d.createElement('scri'+'pt');s.src='$path?x='+(Math.random());(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(s);}());</textarea> link to get you started? Just drag it to your browser's bookmark bar!
 EOD;
+
   $form['pinboard_help_settings']['pinboard_help'] = array(
     '#type' => 'textarea',
     '#title' => t('Help message'),
     '#description' => 'Help users use the module. By default provides the bookmarklet code',
     '#default_value' => variable_get('pinboard_help', $bookmarklet)
-  );
-
-  $form['pinboard_help_settings']['pinboard_help_block'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable the Pinboard Bookmarks help block'),
-    '#description' => 'When enabled, the above help text will be made available in a block'
   );
 
   return system_settings_form($form);
