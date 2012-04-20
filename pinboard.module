@@ -166,19 +166,22 @@ function pinboard_bookmarks_access($account) {
 function pinboard_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'form' && $category == 'account') {
     $data = unserialize($account->data);
+    $pinboard_title = variable_get('pinboard_title', 'Bookmarks');
+
     $form['pinboard'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Bookmarks')
+      '#title' => $pinboard_title
     );
 
     $form['pinboard']['pinboard_visibility'] = array(
       '#type' => 'radios',
       '#title' => t('Visibility'),
+      '#description' => t('Change your !link visibility.', array('!link' => l($pinboard_title, 'user/'. $account->uid .'/bookmarks', array('absolute' => TRUE))) ),
       '#options' => array(
         'private' => t('Private'),
         'public'  =>t('Public')
       ),
-      '#default_value' => isset($data['pinboard_visibility']) ? $data['pinboard_visibility'] : 'private'
+      '#default_value' => isset($data['pinboard_visibility']) ? $data['pinboard_visibility'] : 'public'
     );
 
     return $form;
