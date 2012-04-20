@@ -16,8 +16,18 @@
  * @todo use theme function to display each bookmark
  */
 function pinboard_user_page($account) {
-
   global $user;
+
+  // the user may be accessing his bookmarks with the shorthand
+  if (!$account) {
+    $account = $user;
+  }
+
+  // must've accessed /bookmarks directly. oops
+  if (!$account->uid) {
+    drupal_goto('user');
+  }
+
   $name = check_plain($account->name);
   $pinboard_title = strtolower(variable_get('pinboard_title', 'bookmarks'));
 
