@@ -30,6 +30,10 @@ Drupal.behaviors.pinboard = function(context) {
               element.parent().hide().remove();
 
               if (ancestor.hasClass("pinboard-list") && ancestor.children().length === 0) {
+                if (ancestor.hasClass('pinboard-paged')) {
+                  location.reload();
+                }
+
                 $("#pinboard-empty").removeClass("pinboard-hide");
                 $('#pinboard-help').remove();
                 ancestor.remove();

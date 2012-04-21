@@ -315,7 +315,10 @@ EOD;
   }
 
   // Paginated result FTW!
-  $variables['pager'] = theme('pager');
+  if ($pager = theme('pager')) {
+    $variables['pager'] = $pager;
+    $variables['classes'] .= ' pinboard-paged';
+  }
 }
 
 /**
