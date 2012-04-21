@@ -73,7 +73,13 @@ function pinboard_node_bookmark($nid) {
   $bookmark->title  = $node->title;
   $bookmark->description = strip_tags($node->teaser);
 
-  module_invoke_all('pinboard_node_bookmark', $bookmark, $node);
+  // skip module_invoke_all as it doesn't support references
+  // @see http://drupal.org/node/353494
+  $hook = 'pinboard_node_bookmark';
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    $function($bookmark, $node);
+  }
 
   return $bookmark;
 }
