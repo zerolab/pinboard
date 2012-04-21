@@ -310,7 +310,7 @@ EOD;
   $variables['classes'] = 'pinboard-list';
 
   if ($can_delete) {
-    $data = unserialize($account->data);
+    $data = unserialize($variables['account']->data);
     $variables['classes'] .= ' pinboard-'. $data['pinboard_visibility'];
   }
 
