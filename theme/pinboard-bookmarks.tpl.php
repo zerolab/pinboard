@@ -18,8 +18,14 @@ if ($is_owner) : ?>
 
 <?php if (!$pinboard_empty) : ?>
   <ul class="<?php print $classes ?>">
-  <?php foreach ($bookmarks as $bookmark) : ?>
-    <li><?php print $bookmark ?></li>
+  <?php foreach ($bookmarks as $index => $bookmark) : ?>
+    <li><?php print $bookmark ?>
+      <?php if ($links[$index]) : ?>
+        <div class="links">
+          <?php print $links[$index]; ?>
+        </div>
+      <?php endif; ?>
+    </li>
   <?php endforeach; ?>
 </ul>
   <?php if ($pager) : ?>

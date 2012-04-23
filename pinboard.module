@@ -293,8 +293,9 @@ EOD;
   foreach($variables['items'] as $bookmark) {
     $item = theme('pinboard_bookmark', $bookmark);
 
+    $link = NULL;
     if ($can_delete) {
-      $item .= ' '. l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
+      $link = l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
         'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
@@ -303,9 +304,11 @@ EOD;
     }
 
     $bookmarks[] = $item;
+    $links[] = $link;
   }
 
   $variables['bookmarks'] = $bookmarks;
+  $variables['links'] = $links;
   $variables['pinboard_empty'] = (!$bookmarks || empty($bookmarks));
   $variables['classes'] = 'pinboard-list';
 
