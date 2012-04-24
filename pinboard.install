@@ -21,6 +21,8 @@ function pinboard_uninstall() {
   variable_del('pinboard_title');
   variable_del('pinboard_bookmarklet_text');
   variable_del('pinboard_help');
+  variable_del('pinboard_text_add');
+  variable_del('pinboard_text_remove');
 }
 
 /**
