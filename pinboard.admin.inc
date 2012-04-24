@@ -35,6 +35,20 @@ function pinboard_admin_settings() {
     '#description' => 'Bookmarklet text. Used when dragged to the bookmarks bar in your browser'
   );
 
+  $form['pinboard_strings']['pinboard_text_add'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Add bookmark text',
+    '#default_value' => variable_get('pinboard_add_text', 'Bookmark'),
+    '#description' => 'Add bookmark link text. Defaults to <em>Bookmark</em>'
+  );
+
+  $form['pinboard_strings']['pinboard_text_remove'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Remove bookmark text',
+    '#default_value' => variable_get('pinboard_delete_text', 'Remove bookmark'),
+    '#description' => 'Remove bookmark link text. Defaults to <em>Remove bookmark</em>'
+  );
+
   $form['pinboard_help_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Help'),
