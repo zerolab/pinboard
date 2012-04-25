@@ -176,7 +176,7 @@ function pinboard_user($op, &$edit, &$account, $category = NULL) {
     $form['pinboard']['pinboard_visibility'] = array(
       '#type' => 'radios',
       '#title' => t('Visibility'),
-      '#description' => t('Change your !link visibility.', array('!link' => l($pinboard_title, 'user/'. $account->uid .'/bookmarks', array('absolute' => TRUE))) ),
+      '#description' => t('Allow or deny public access to your !link.', array('!link' => l($pinboard_title, 'user/'. $account->uid .'/bookmarks', array('absolute' => TRUE))) ),
       '#options' => array(
         'private' => t('Private'),
         'public'  =>t('Public')
