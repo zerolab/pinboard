@@ -78,7 +78,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
     if ($bid = pinboard_save($bookmark)) {
       $message = t('Bookmark successfully added');
       $link = 'bookmark/delete/'. $bid;
-      $text = 'Remove bookmark';
+      $text = variable_get('pinboard_text_remove', 'Remove bookmark');
       $status = 'pinboard-bookmarked';
     }
     else {
@@ -89,7 +89,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
   else if ($action == 'delete') {
     pinboard_delete($content_id);
     $message = t('Bookmark successfully deleted');
-    $text = 'Bookmark';
+    $text = variable_get('pinboard_text_add', 'Bookmark');
     $status = 'remove';
 
     if (is_numeric($_REQUEST['nid']) ) {
