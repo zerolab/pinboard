@@ -77,7 +77,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
     if ($bid = pinboard_save($bookmark)) {
       $message = t('Bookmark successfully added');
-      $link = 'bookmark/delete/'. $bid;
+      $link = url("bookmark/delete/$bid", array('absolute' => TRUE));
       $text = variable_get('pinboard_text_remove', 'Remove bookmark');
       $status = 'pinboard-bookmarked';
     }
