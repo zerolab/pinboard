@@ -38,14 +38,14 @@ function pinboard_admin_settings() {
   $form['pinboard_strings']['pinboard_text_add'] = array(
     '#type' => 'textfield',
     '#title' => 'Add bookmark text',
-    '#default_value' => variable_get('pinboard_add_text', 'Bookmark'),
+    '#default_value' => variable_get('pinboard_text_add', 'Bookmark'),
     '#description' => 'Add bookmark link text. Defaults to <em>Bookmark</em>'
   );
 
   $form['pinboard_strings']['pinboard_text_remove'] = array(
     '#type' => 'textfield',
     '#title' => 'Remove bookmark text',
-    '#default_value' => variable_get('pinboard_delete_text', 'Remove bookmark'),
+    '#default_value' => variable_get('pinboard_text_remove', 'Remove bookmark'),
     '#description' => 'Remove bookmark link text. Defaults to <em>Remove bookmark</em>'
   );
 
