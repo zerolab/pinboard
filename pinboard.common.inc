@@ -126,12 +126,27 @@ function pinboard_delete($bid) {
 function pinboard_create_link($nid) {
   global $user;
 
+  $classes = 'pinboard-link';
+
   if ($bid = db_result(db_query("SELECT bid FROM {pinboard} WHERE nid = %d AND uid = %d", $nid, $user->uid))) {
-    return l(variable_get('pinboard_text_remove', 'Remove bookmark'), 'bookmark/delete/'. $bid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link pinboard-bookmarked', 'data-id' => $nid)));
+    $token = pinboard_get_token($bid);
+    $link_text = variable_get('pinboard_text_remove', 'Remove bookmark');
+    $link_uri = "bookmark/delete/$bid";
+    $classes .= ' pinboard-bookmarked';
   }
   else {
-    return l(variable_get('pinboard_text_add', 'Bookmark'), 'bookmark/add/'. $nid, array('absolute' => TRUE, 'attributes' => array('class' => 'pinboard-link', 'data-id' => $nid)));
+    $token = pinboard_get_token($nid);
+    $link_text = variable_get('pinboard_text_add', 'Bookmark');
+    $link_uri = "bookmark/add/$nid";
   }
+
+  return l($link_text, $link_uri,
+    array(
+      'absolute' => TRUE,
+      'query' => array('token' => $token),
+      'attributes' => array('class' => $classes, 'data-id' => $nid)
+    )
+  );
 }
 
 /**
