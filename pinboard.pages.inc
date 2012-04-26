@@ -56,11 +56,13 @@ function pinboard_user_page($account) {
  * @param $content_id
  *    The id of content to perform an action on. Can be a node id for add.
  *    Always a bookmark id for delete.
+ *
+ * @todo use confirm_form to confirm deletion in non-ajax mode
  */
 function pinboard_actions_page($action, $content_id = NULL) {
-  if (!in_array($action, array('add', 'delete')) || !is_numeric($content_id)) {
-    $error = t('Unexpected error. Unsupported action performed!');
-    drupal_set_message($error, 'error');
+  if (!in_array($action, array('add', 'delete')) || !is_numeric($content_id)
+      || !isset($_REQUEST['token']) || !pinboard_check_token($_REQUEST['token'], $content_id)) {
+    drupal_set_message(t('Unexpected error. Unsupported action performed!'), 'error');
     drupal_access_denied();
     return;
   }
@@ -77,7 +79,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
     if ($bid = pinboard_save($bookmark)) {
       $message = t('Bookmark successfully added');
-      $link = url("bookmark/delete/$bid", array('absolute' => TRUE));
+      $link = url("bookmark/delete/$bid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($bid)) ));
       $text = variable_get('pinboard_text_remove', 'Remove bookmark');
       $status = 'pinboard-bookmarked';
     }
@@ -93,7 +95,8 @@ function pinboard_actions_page($action, $content_id = NULL) {
     $status = 'remove';
 
     if (is_numeric($_REQUEST['nid']) ) {
-      $link = url('bookmark/add/'. $_REQUEST['nid'], array('absolute' => TRUE));
+      $nid = $_REQUEST['nid'];
+      $link = url("bookmark/add/$nid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($nid)) ));
       $status = TRUE;
     }
   }
