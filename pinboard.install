@@ -4,3 +4,188 @@
  *    pinboard.install - (un)install tasks
  *
  */
+
+/**
+ *  Implementation of hook_install()
+ */
+function pinboard_install() {
+  drupal_install_schema('pinboard');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function pinboard_uninstall() {
+  drupal_uninstall_schema('pinboard');
+
+  variable_del('pinboard_title');
+  variable_del('pinboard_bookmarklet_text');
+  variable_del('pinboard_help');
+  variable_del('pinboard_text_add');
+  variable_del('pinboard_text_remove');
+}
+
+/**
+ * Implementation of hook_schema()
+ */
+function pinboard_schema() {
+
+  $schema['pinboard'] = array(
+    'description' => 'Bookmarks table',
+    'fields' => array(
+      'bid' => array(
+        'description' => 'Bookmark id',
+        'type'        => 'serial',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'uid' => array(
+        'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid if a node is bookmarked',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'url' => array(
+        'description' => 'The bookmarked url',
+        'type'        => 'varchar',
+        'length'      => '512',
+        'not null'    => TRUE,
+        'default'     => ''
+      ),
+      'title' => array(
+        'description' => 'Bookmark title, always treated as non-markup text',
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => ''
+      ),
+      'description' => array(
+        'description' => 'Bookmark description',
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => ''
+      ),
+      'created' => array(
+        'description' => 'The save timestamp',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      )
+    ),
+    'indexes' => array(
+      'created' => array('created'),
+      'uid' => array('uid'),
+    ),
+    'unique_keys' => array(
+      'bid' => array('bid')
+    ),
+    'primary key' => array('bid', 'uid')
+  );
+
+  $schema['pinboard_activity'] = array(
+    'description' => 'User bookmarking activity',
+    'fields' => array(
+      'bid' => array(
+        'description' => 'Bookmark id',
+        'type'        => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'uid' => array(
+        'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'action' => array(
+        'description' => 'Action used on bookmark. Add = 0, Delete = 1, Update = 2',
+        'type'        => 'int',
+        'size'        => 'tiny',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'timestamp' => array(
+        'description' => 'Action time',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      )
+    ),
+    'indexes' => array(
+      'timestamp' => array('timestamp'),
+      'uid'       => array('uid')
+    )
+  );
+
+  $schema['cache_pinboard'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_pinboard']['description'] = 'Cache table for the Pinboard module to store user bookmark lists / data';
+
+  return $schema;
+}
+
+function pinboard_update_6000(&$sandbox) {
+  $ret = array();
+
+  // works better than db_add_field() because of column position
+  $ret[] = update_sql("ALTER TABLE {pinboard} ADD nid INT unsigned NOT NULL DEFAULT 0 AFTER uid");
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N()
+ *
+ * Add the pinboard_activity table. Useful for simple history of actions
+ */
+function pinboard_update_6100() {
+  $schema['pinboard_activity'] = array(
+    'description' => 'User bookmarking activity',
+    'fields' => array(
+      'bid' => array(
+        'description' => 'Bookmark id',
+        'type'        => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'uid' => array(
+        'description' => 'The {user}.uid saving the bookmark',
+        'type'        => 'int',
+        'unsigned'    => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'action' => array(
+        'description' => 'Action used on bookmark. Add = 0, Delete = 1, Update = 2',
+        'type'        => 'int',
+        'size'        => 'tiny',
+        'not null'    => TRUE,
+        'default'     => 0
+      ),
+      'timestamp' => array(
+        'description' => 'Action time',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0
+      )
+    ),
+    'indexes' => array(
+      'timestamp' => array('timestamp'),
+      'uid'       => array('uid')
+    )
+  );
+
+  $ret = array();
+  db_create_table($ret, 'pinboard_activity', $schema['pinboard_activity']);
+
+  return $ret;
+}

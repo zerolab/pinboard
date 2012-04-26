@@ -1,0 +1,56 @@
+.pinboard-link {
+  background:url(bookmark-off.png) no-repeat;
+  padding-left:16px;
+}
+
+.pinboard-list .pinboard-link {
+  background:none;
+  padding-left:0;
+}
+
+.pinboard-bookmarked {
+  background-image:url(bookmark-on.png);
+}
+
+.pinboard-waiting {
+  background-image:url(loading.gif);
+}
+
+#pinboard-help {
+  margin:0 0 1em;
+}
+
+#pinboard-bookmarklet {
+  background:#1f1f1f;
+  color:#fff;
+  display: inline-block;
+  line-height: 24px;
+  padding:0 8px;
+  text-decoration:none;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+#pinboard-bookmarklet-code {
+  border:1px solid #bababa;
+  display:none;
+}
+
+.pinboard-hide {
+  display:none;
+}
+
+@media only screen and (max-device-width: 480px),
+       only screen and (max-device-width: 1024px) {
+
+  #pinboard-bookmarklet {
+    display:none;
+  }
+
+  #pinboard-bookmarklet-code {
+    box-sizing: border-box;
+    display: block;
+    width:100%;
+  }
+}
