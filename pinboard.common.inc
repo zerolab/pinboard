@@ -139,6 +139,11 @@ function pinboard_create_link($nid) {
  *
  * @param $uid
  *    User id to get the bookmark list from
+ * @param $bids mixed
+ *    bookmark id OR array of bookmark IDs. if none given, all are returned
+ * @param $paged bool
+ *    turn paged queries on/off.
+ *
  * @return
  *    An array with bookmark details
  */
@@ -336,4 +341,20 @@ function pinboard_bookmark_prepare($url, $title = '', $description = '') {
   $bookmark->description = html_entity_decode($bookmark->description, ENT_QUOTES, 'UTF-8');
 
   return $bookmark;
+}
+
+/**
+ * Get private token to prevent CSRF
+ *
+ * @see flag_get_token()
+ */
+function pinboard_get_token($content_id) {
+  return ($GLOBALS['users']->uid) ? drupal_get_token($content_id) : md5(drupal_get_private_key() . $content_id);
+}
+
+/**
+ * Check provided token against content id
+ */
+function pinboard_check_token($token, $content_id) {
+  return $token == pinboard_get_token($content_id);
 }
