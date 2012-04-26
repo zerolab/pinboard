@@ -9,14 +9,13 @@ system.
 2. Go to `admin/build/modules`
 3. Tick the checkbox next to Pinboard and save changes
 
-## Roadmap
+## Code
 
-* URL info caching a la Dave Reid's [Bookmark](http://drupal.org/project/bookmark)
-  module
-* Bookmarklet
-* Provide API
+--
 
 ## Credit
 
-This module was created by [Dan Braghis](http://zerolab.org) for internal use at
+This module was originally created by [Dan Braghis](http://zerolab.org) for use at
 [The Browser](http://thebrowser.com "Writing Worth Reading")
+
+Inspired by Dave Reid's [Bookmark](http://drupal.org/project/bookmark)
