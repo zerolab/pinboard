@@ -11,7 +11,7 @@ system.
 
 ## Roadmap
 
-- Use the theme layer and templates for the bookmarked items
+- Full Views integration
 
 ## Credit
 
