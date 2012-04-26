@@ -11,12 +11,11 @@ system.
 
 ## Roadmap
 
-- Add tokens to ajax add/remove node urls
 - Use the theme layer and templates for the bookmarked items
 
 ## Credit
 
-This module was created by [Dan Braghis](http://zerolab.org) for internal use at
+This module was originally created by [Dan Braghis](http://zerolab.org) for use at
 [The Browser](http://thebrowser.com "Writing Worth Reading")
 
 Inspired by Dave Reid's [Bookmark](http://drupal.org/project/bookmark)
