@@ -364,7 +364,7 @@ function pinboard_bookmark_prepare($url, $title = '', $description = '') {
  * @see flag_get_token()
  */
 function pinboard_get_token($content_id) {
-  return ($GLOBALS['users']->uid) ? drupal_get_token($content_id) : md5(drupal_get_private_key() . $content_id);
+  return ($GLOBALS['user']->uid) ? drupal_get_token($content_id) : md5(drupal_get_private_key() . $content_id);
 }
 
 /**
