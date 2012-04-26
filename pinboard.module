@@ -295,10 +295,13 @@ EOD;
 
     $link = NULL;
     if ($can_delete) {
+      $link_text = variable_get('pinboard_text_remove', 'Remove bookmark');
+      // could use pinboard_create_link, but this skips an extra db call
       $link = l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
-        'attributes' => array('class' => 'pinboard-link', 'title' => t('Remove bookmark'))
+        'attributes' => array('class' => 'pinboard-link', 'title' => $link_text),
+        'query' => array('token' => pinboard_get_token($bookmark->bid))
         )
       );
     }
