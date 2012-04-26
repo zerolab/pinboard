@@ -26,17 +26,17 @@ Drupal.behaviors.pinboard = function(context) {
         success: function(data) {
           if (data.status) {
             if (data.status == 'remove') {
-              var ancestor = element.parent().parent();
-              element.parent().hide().remove();
+              var wrapper = element.parents(".pinboard-list:first");
+              element.parents('.pinboard-list-item').hide().remove();
 
-              if (ancestor.hasClass("pinboard-list") && ancestor.children().length === 0) {
-                if (ancestor.hasClass('pinboard-paged')) {
+              if (wrapper && wrapper.children().length === 0) {
+                if (wrapper.hasClass('pinboard-paged')) {
                   location.reload();
                 }
 
                 $("#pinboard-empty").removeClass("pinboard-hide");
                 $('#pinboard-help').remove();
-                ancestor.remove();
+                wrapper.remove();
               }
             }
             else {

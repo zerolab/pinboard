@@ -19,7 +19,7 @@ if ($is_owner) : ?>
 <?php if (!$pinboard_empty) : ?>
   <ul class="<?php print $classes ?>">
   <?php foreach ($bookmarks as $index => $bookmark) : ?>
-    <li><?php print $bookmark ?>
+    <li class="pinboard-list-item"><?php print $bookmark ?>
       <?php if ($links[$index]) : ?>
         <div class="links">
           <?php print $links[$index]; ?>
