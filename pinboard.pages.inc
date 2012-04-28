@@ -20,7 +20,7 @@ function pinboard_user_page($account) {
 
   // the user may be accessing his bookmarks with the shorthand
   if (!$account) {
-    $account = $user;
+    drupal_goto("user/$user->uid/bookmarks");
   }
 
   // must've accessed /bookmarks directly. oops

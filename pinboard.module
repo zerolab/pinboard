@@ -103,7 +103,7 @@ function pinboard_menu() {
 
   $title = variable_get('pinboard_title', t('Bookmarks'));
   // User-specific data
-  $items['bookmarks'] = $items['user/%user/bookmarks'] = array(
+  $items['user/%user/bookmarks'] = array(
     'title' => $title,
     'page callback' => 'pinboard_user_page',
     'page arguments' => array(1),
@@ -111,6 +111,13 @@ function pinboard_menu() {
     'file' => 'pinboard.pages.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 5
+  );
+
+  $items['bookmarks'] = array(
+    'title' => $title,
+    'page callback' => 'pinboard_user_page',
+    'access callback' => 'user_is_logged_in',
+    'file' => 'pinboard.pages.inc',
   );
 
   return $items;
@@ -297,7 +304,7 @@ EOD;
     if ($can_delete) {
       $link_text = variable_get('pinboard_text_remove', 'Remove bookmark');
       // could use pinboard_create_link, but this skips an extra db call
-      $link = l('&times;', 'bookmark/delete/'. $bookmark->bid, array(
+      $link = l('Remove', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
         'attributes' => array('class' => 'pinboard-link', 'title' => $link_text),
