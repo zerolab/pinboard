@@ -60,7 +60,7 @@ function pinboard_user_page($account) {
  * @todo use confirm_form to confirm deletion in non-ajax mode
  */
 function pinboard_actions_page($action, $content_id = NULL) {
-  if (!in_array($action, array('add', 'delete')) || !is_numeric($content_id)
+  if (!in_array($action, array('add', 'edit', 'delete')) || !is_numeric($content_id)
       || !isset($_REQUEST['token']) || !pinboard_check_token($_REQUEST['token'], $content_id)) {
     drupal_set_message(t('Unexpected error. Unsupported action performed!'), 'error');
     drupal_access_denied();
@@ -74,31 +74,41 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
   $js = $_REQUEST['js'];
 
-  if ($action == 'add') {
-    $bookmark = pinboard_node_bookmark($content_id);
+  switch ($action) {
 
-    if ($bid = pinboard_save($bookmark)) {
-      $message = t('Bookmark successfully added');
-      $link = url("bookmark/delete/$bid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($bid)) ));
-      $text = variable_get('pinboard_text_remove', 'Remove bookmark');
-      $status = 'pinboard-bookmarked';
-    }
-    else {
-      $error = t('Could not add bookmark.');
-    }
+    case 'add':
+      $bookmark = pinboard_node_bookmark($content_id);
 
-  }
-  else if ($action == 'delete') {
-    pinboard_delete($content_id);
-    $message = t('Bookmark successfully deleted');
-    $text = variable_get('pinboard_text_add', 'Bookmark');
-    $status = 'remove';
+      if ($bid = pinboard_save($bookmark)) {
+        $message = t('Bookmark successfully added');
+        $link = url("bookmark/delete/$bid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($bid)) ));
+        $text = variable_get('pinboard_text_remove', 'Remove bookmark');
+        $status = 'pinboard-bookmarked';
+      }
+      else {
+        $error = t('Could not add bookmark.');
+      }
 
-    if (is_numeric($_REQUEST['nid']) ) {
-      $nid = $_REQUEST['nid'];
-      $link = url("bookmark/add/$nid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($nid)) ));
-      $status = TRUE;
-    }
+      break;
+
+    case 'edit':
+      drupal_set_title('Edit bookmark');
+      return drupal_get_form('pinboard_edit_form', $content_id);
+      break;
+
+    case 'delete':
+      pinboard_delete($content_id);
+      $message = t('Bookmark successfully deleted');
+      $text = variable_get('pinboard_text_add', 'Bookmark');
+      $status = 'remove';
+
+      if (is_numeric($_REQUEST['nid']) ) {
+        $nid = $_REQUEST['nid'];
+        $link = url("bookmark/add/$nid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($nid)) ));
+        $status = TRUE;
+      }
+
+      break;
   }
 
   if ($js) {
@@ -213,31 +223,33 @@ function pinboard_bookmarklet_page($mode = NULL) {
  * Implementation of hook_form()
  * This is the bookmark creation form
  */
-function pinboard_form() {
+function pinboard_edit_form(&$form_state, $bid) {
+
+  $bookmark = pinboard_load_bookmarks($GLOBALS['user']->uid, $bid);
 
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => 'URL',
-    '#default_value' => $url,
+    '#default_value' => $bookmark->url,
     '#required' => TRUE
   );
 
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => 'Title',
-    '#default_value' => $title
+    '#default_value' => $bookmark->title
   );
 
   $form['description'] = array(
     '#type' => 'textarea',
     '#title' => 'Short description',
-    '#default_value' => $description,
+    '#default_value' => $bookmark->description,
     '#description' => 'Short description. Up to 220 characters.'
   );
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Bookmark')
+    '#value' => t('Save')
   );
 
   return $form;
@@ -246,7 +258,7 @@ function pinboard_form() {
 /**
  *  Implementation of hook_validate()
  */
-function pinboard_form_validate($form, &$form_state) {
+function pinboard_edit_form_validate($form, &$form_state) {
   $url = $form_state['values']['url'];
 
   if (function_exists('idn_to_ascii')) {
@@ -262,7 +274,7 @@ function pinboard_form_validate($form, &$form_state) {
  *
  * @todo get title/description via drupal_http_request to $url if empty
  */
-function pinboard_form_submit($form, &$form_state) {
+function pinboard_edit_form_submit($form, &$form_state) {
   $url = check_url($form_state['values']['url']);
   $title = check_plain($form_state['values']['title']);
   $description = check_plain($form_state['values']['description']);
@@ -270,11 +282,13 @@ function pinboard_form_submit($form, &$form_state) {
   $bookmark = pinboard_bookmark_prepare($url, $title, $description);
 
   if (pinboard_save($bookmark)) {
-    $message = 'Bookmark successfully added';
+    $message = 'Bookmark updated successfully';
   }
   else {
     $message = 'Uh-oh! Could not save bookmark.';
   }
 
   drupal_set_message($message);
+
+  $form_state['redirect'] = 'bookmarks';
 }
