@@ -307,7 +307,15 @@ EOD;
       $link = l('Remove', 'bookmark/delete/'. $bookmark->bid, array(
         'absolute' => TRUE,
         'html' => TRUE,
-        'attributes' => array('class' => 'pinboard-link', 'title' => $link_text),
+        'attributes' => array('class' => 'pinboard-link pinboard-remove', 'title' => $link_text),
+        'query' => array('token' => pinboard_get_token($bookmark->bid))
+        )
+      );
+
+      $link .= ' '. l('Edit', 'bookmark/edit/'. $bookmark->bid, array(
+        'absolute' => TRUE,
+        'html' => TRUE,
+        'attributes' => array('class' => 'pinboard-edit', 'title' => 'Edit'),
         'query' => array('token' => pinboard_get_token($bookmark->bid))
         )
       );
