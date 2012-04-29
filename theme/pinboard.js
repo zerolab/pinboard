@@ -3,9 +3,7 @@
  */
 
 Drupal.behaviors.pinboard = function(context) {
-  $('a.pinboard-link:not(.pinboard-processed)', context)
-    .addClass('pinboard-processed')
-    .click(function(){
+  $('a.pinboard-link:not(.pinboard-ignore)', context).click(function(){
       var element = $(this);
 
       if (element.is('.pinboard-waiting')) {
