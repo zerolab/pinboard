@@ -191,6 +191,11 @@ function pinboard_load_bookmarks($uid = 0, $bids = NULL, $paged = FALSE) {
     $bookmarks[] = $bookmark;
   }
 
+  //@todo make more elegant
+  if (is_numeric($bids)) {
+    return $bookmarks[0];
+  }
+
   return $bookmarks;
 }
 
