@@ -123,8 +123,17 @@ function pinboard_delete($bid) {
  * @return
  *    An html link
  */
-function pinboard_create_link($nid) {
+function pinboard_create_link($nid, $options = array()) {
   global $user;
+
+  if (!user_access('create bookmarks')) {
+    if (empty($options)) {
+      $options = array(
+        'absolute' => TRUE,
+      );
+    }
+    return l(variable_get('pinboard_text_add', 'Bookmark'), 'user', $options);
+  }
 
   $classes = 'pinboard-link';
 
