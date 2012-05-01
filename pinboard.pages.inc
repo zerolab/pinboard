@@ -60,8 +60,15 @@ function pinboard_user_page($account) {
  * @todo use confirm_form to confirm deletion in non-ajax mode
  */
 function pinboard_actions_page($action, $content_id = NULL) {
-  if (!in_array($action, array('add', 'edit', 'delete')) || !is_numeric($content_id)
-      || !isset($_REQUEST['token']) || !pinboard_check_token($_REQUEST['token'], $content_id)) {
+  if (!in_array($action, array('add', 'edit', 'delete')) || !is_numeric($content_id)) {
+    drupal_set_message(t('Unexpected error. Unsupported action performed!'), 'error');
+    drupal_access_denied();
+    return;
+  }
+
+  if (in_array($action, array('edit', 'delete')) && !isset($_REQUEST['token'])
+      && !pinboard_check_token($_REQUEST['token'], $content_id) ) {
+
     drupal_set_message(t('Unexpected error. Unsupported action performed!'), 'error');
     drupal_access_denied();
     return;
@@ -104,7 +111,7 @@ function pinboard_actions_page($action, $content_id = NULL) {
 
       if (is_numeric($_REQUEST['nid']) ) {
         $nid = $_REQUEST['nid'];
-        $link = url("bookmark/add/$nid", array('absolute' => TRUE, 'query' => array('token' => pinboard_get_token($nid)) ));
+        $link = url("bookmark/add/$nid", array('absolute' => TRUE) );
         $status = TRUE;
       }
 

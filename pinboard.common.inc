@@ -144,16 +144,21 @@ function pinboard_create_link($nid, $options = array()) {
     $classes .= ' pinboard-bookmarked';
   }
   else {
-    $token = pinboard_get_token($nid);
-    $link_text = variable_get('pinboard_text_add', 'Bookmark');
-    $link_uri = "bookmark/add/$nid";
+    return l(
+      variable_get('pinboard_text_add', 'Bookmark'),
+      "bookmark/add/$nid",
+      array(
+        'absolute' => TRUE,
+        'attributes' => array('class' => $classes, 'data-id' => $nid, 'title' => $link_text)
+      )
+    );
   }
 
   return l($link_text, $link_uri,
     array(
       'absolute' => TRUE,
       'query' => array('token' => $token),
-      'attributes' => array('class' => $classes, 'data-id' => $nid)
+      'attributes' => array('class' => $classes, 'data-id' => $nid, 'title' => $link_text)
     )
   );
 }
