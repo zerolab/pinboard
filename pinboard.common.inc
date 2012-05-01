@@ -209,6 +209,31 @@ function pinboard_load_bookmarks($uid = 0, $bids = NULL, $paged = FALSE) {
 }
 
 /**
+ * Loads all bookmarks after given bookmark id
+ *
+ * @param $bid
+ *     The load
+ * @param $uid
+ *     User ID
+ *
+ * @return $bookmarks
+ */
+function pinboard_load_after($bid, $uid) {
+  if (!$uid || !is_numeric($uid)) {
+    return;
+  }
+
+  $bookmarks = array();
+  $results = db_query("SELECT * FROM {pinboard} WHERE uid = %d AND bid > %d ORDER BY bid DESC", $uid, $bid);
+
+  while ($bookmark = db_fetch_object($results)) {
+    $bookmarks[] = $bookmark;
+  }
+
+  return $bookmarks;
+}
+
+/**
  * Return the url hash
  */
 function pinboard_url_hash($url) {
