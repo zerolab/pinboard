@@ -144,8 +144,9 @@ function pinboard_create_link($nid, $options = array()) {
     $classes .= ' pinboard-bookmarked';
   }
   else {
+    $link_text = variable_get('pinboard_text_add', 'Bookmark');
     return l(
-      variable_get('pinboard_text_add', 'Bookmark'),
+      $link_text,
       "bookmark/add/$nid",
       array(
         'absolute' => TRUE,
