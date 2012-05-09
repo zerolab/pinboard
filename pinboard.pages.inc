@@ -38,6 +38,8 @@ function pinboard_user_page($account) {
     $title = "$name&rsquo;".($name[strlen($name) - 1] != 's' ? 's' : '') ." $pinboard_title";
   }
   drupal_set_title($title);
+  drupal_set_html_head("<meta name=\"description\" content=\"{$title}\" />");
+
 
   if (!pinboard_bookmarks_access($account)) {
     return 'This user has no public bookmarks.';
