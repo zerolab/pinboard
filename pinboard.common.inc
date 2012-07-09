@@ -352,7 +352,7 @@ function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
  */
 function pinboard_get_activity($uid, $timestamp) {
   $results = db_query("SELECT bid, action, timestamp FROM {pinboard_activity} "
-    . "WHERE uid = %d AND timestamp >= %d ORDER BY timestamp ASC", $uid, $timestamp);
+    . "WHERE uid = %d AND timestamp > %d ORDER BY timestamp ASC", $uid, $timestamp);
 
   while ($r = db_fetch_array($results)) {
     $activity[] = $r;
