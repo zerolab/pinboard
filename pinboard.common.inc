@@ -92,15 +92,25 @@ function pinboard_node_bookmark($nid) {
  *
  * @return TRUE if delete successful
  */
-function pinboard_delete($bid) {
-  global $user;
+function pinboard_delete($bid, $account = NULL) {
+
+  if (!$account || !is_object($account)) {
+    global $user;
+
+    $account = $user;
+  }
+
+  if (!$account->uid) {
+    return FALSE;
+  }
 
   $owner = db_result(db_query("SELECT uid FROM {pinboard} WHERE bid = %d", $bid));
 
   $query = "DELETE FROM {pinboard} WHERE bid = %d";
   $action = PINBOARD_DELETE;
-  if (!user_access('delete any bookmarks', $user) || $user->uid == $owner) {
-    $query .= " AND uid = ". $user->uid;
+
+  if (!user_access('delete any bookmarks', $account) || $account->uid == $owner) {
+    $query .= " AND uid = ". $account->uid;
   }
   else {
     $action = PINBOARD_MODERATE;
