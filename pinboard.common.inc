@@ -106,14 +106,19 @@ function pinboard_delete($bid, $account = NULL) {
 
   $owner = db_result(db_query("SELECT uid FROM {pinboard} WHERE bid = %d", $bid));
 
+  // trying to remove inexisting bookmark?
+  if ($owner === FALSE) {
+    return;
+  }
+
   $query = "DELETE FROM {pinboard} WHERE bid = %d";
   $action = PINBOARD_DELETE;
 
-  if (!user_access('delete any bookmarks', $account) || $account->uid == $owner) {
-    $query .= " AND uid = ". $account->uid;
+  if (user_access('delete any bookmarks', $account) && $owner != $account->uid) {
+    $action = PINBOARD_MODERATE;
   }
   else {
-    $action = PINBOARD_MODERATE;
+    $query .= " AND uid = ". $account->uid;
   }
 
   if ($ret = db_query($query, $bid)) {
