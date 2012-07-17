@@ -365,9 +365,16 @@ function pinboard_log_activity($bid, $action, $uid = NULL, $timestamp = NULL) {
  * @return array
  *    An array with
  */
-function pinboard_get_activity($uid, $timestamp) {
-  $results = db_query("SELECT bid, action, timestamp FROM {pinboard_activity} "
-    . "WHERE uid = %d AND timestamp > %d ORDER BY timestamp ASC", $uid, $timestamp);
+function pinboard_get_activity($uid, $since = 0) {
+
+  if (!$since) {
+    $results = db_query("SELECT bid, 0 as action, created AS timestamp FROM {pinboard} WHERE "
+      ."uid = %d ORDER BY created ASC LIMIT 200", $uid);
+  }
+  else {
+    $results = db_query("SELECT bid, action, timestamp FROM {pinboard_activity} "
+      . "WHERE uid = %d AND timestamp > %d ORDER BY timestamp ASC", $uid, $since);
+  }
 
   while ($r = db_fetch_array($results)) {
     $activity[] = $r;
